@@ -69,7 +69,7 @@ public class Painter implements Runnable {
                 Iterator<Path> pathIt = solution.getPaths().iterator();
                 while (pathIt.hasNext()) {
                     Path path = pathIt.next();
-                    path.getPacmanInPath().setGeom(path.getPacPositionAfterXtime((System.currentTimeMillis() - startTime))); /**DO NOT CHANGE
+                    path.getPacmanInPath().setGeom(path.getPacPositionAfterXtime((System.currentTimeMillis() - startTime)*40)); /**DO NOT CHANGE
                      This is calculated REAL-TIME movement of Pacman. separately from FPS. Thread sleeping provides the FPS on screen.**/
                     currentTime = System.currentTimeMillis();
                 }

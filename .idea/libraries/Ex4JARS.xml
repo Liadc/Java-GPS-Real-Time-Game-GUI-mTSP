@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Ex4JARS">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/AddedForEx4/Ex4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/AddedForEx4/mysql-connector-java-5.1.47.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
