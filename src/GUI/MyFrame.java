@@ -59,8 +59,13 @@ public class MyFrame extends JPanel implements MouseListener {
         int w = this.getWidth();
         int h = this.getHeight();
         g.drawImage(image, 0, 0, w, h, this);
+
+
         Iterator PacIterator = game.getPacmen().iterator();
         Iterator FruitIterator = game.getFruits().iterator();
+
+
+
 
         while (PacIterator.hasNext()) {
             Packman pacman = (Packman)PacIterator.next();
@@ -77,6 +82,7 @@ public class MyFrame extends JPanel implements MouseListener {
             g.drawString("ID: "+pacman.getID(),(int)pixel.x()-5,(int)pixel.y()-10);
             g.drawString("Speed: "+pacman.getSpeed(),(int)pixel.x()-5,(int)pixel.y()-25);
         }
+
 
         while (FruitIterator.hasNext()) {
             Fruit fruit = (Fruit)FruitIterator.next();

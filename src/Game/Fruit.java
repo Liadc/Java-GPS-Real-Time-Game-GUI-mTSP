@@ -1,6 +1,5 @@
 package Game;
 
-import GIS.GIS_element;
 import GIS.GIS_element_obj;
 import GIS.Meta_data_element;
 import Geom.Geom_element;
@@ -10,7 +9,7 @@ import Geom.Geom_element;
  * Weight of this fruit, a boolean isEaten to indicate whether the fruit has been eaten by a pacman, an ID integer, and a long timeToEat which will indicate
  * how long it took to eat this fruit in the last Algorithm Solution run.
  */
-public class Fruit extends GIS_element_obj implements GIS_element {
+public class Fruit extends GIS_element_obj{
     /*
     has the following fields from GIS element:
     Geom_element, Meta_data (name, color, type, utcTime).

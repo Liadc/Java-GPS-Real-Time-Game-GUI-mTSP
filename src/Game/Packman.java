@@ -11,7 +11,7 @@ import Geom.Point3D;
  * This class represents a pacman object (Player) in our game. it will have Geom_element, Meta_data element, speed, eating radius to eat fruits, timeTraveled (updated for the last solution
  * provided by algorithm run) and an orientation.
  */
-public class Packman extends GIS_element_obj implements GIS_element {
+public class Packman extends GIS_element_obj{
     private Point3D orientation; //Yaw, Roll, Pitch. as in: https://upload.wikimedia.org/wikipedia/commons/5/54/Flight_dynamics_with_text.png
     private double speed;
     private double eatRadius;
