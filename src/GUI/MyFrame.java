@@ -1,16 +1,18 @@
 package GUI;
 
-import Algorithms.ShortestPathAlgo;
+//import Algorithms.ShortestPathAlgo;
 import Algorithms.Solution;
 import File_format.Path2KML;
-import GIS.GIS_element;
-import GIS.Meta_data_element;
 import Game.Fruit;
 import Game.Game;
 import Game.Map;
+import Game.Ghost;
+import Game.Obstacle;
+import Game.Player;
 import Game.Packman;
 import Geom.Path;
 import Geom.Point3D;
+import Robot.Play;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -19,7 +21,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 
 /**
@@ -31,15 +32,15 @@ public class MyFrame extends JPanel implements MouseListener {
     private Game game; //game object to work with.
     private int typeToAdd = 0; //1 for pacman, 2 for fruits.
     private Map map; //map object according to provided image.
-    private static Solution linesSolution;
     private static MyFrame ourJFrame;
     private Painter paintThread;
+    private Play play;
 
 
     public MyFrame() {
         this.game = new Game();
-        Point3D topLeft = new Point3D(35.20236,32.10572);
-        Point3D downRight = new Point3D(35.21235,32.10194);
+        Point3D topLeft = new Point3D(32.101898,35.202369); //TODO: Change this hardCoded to Game Bounded (ourJframe.play.getBoundingBox();)
+        Point3D downRight = new Point3D(32.105728,35.212416);
         this.map = new Map(new File("Resources/GameMaps/Ariel1.png"),topLeft,downRight);
         addMouseListener(this);
     }
@@ -63,8 +64,8 @@ public class MyFrame extends JPanel implements MouseListener {
 
         Iterator PacIterator = game.getPacmen().iterator();
         Iterator FruitIterator = game.getFruits().iterator();
-
-
+        Iterator GhostIterator = game.getGhosts().iterator();
+        Iterator ObstacleIterator = game.getObstacles().iterator();
 
 
         while (PacIterator.hasNext()) {
@@ -100,36 +101,23 @@ public class MyFrame extends JPanel implements MouseListener {
                 g.drawString("ID:"+fruit.getID(),(int)pixel.x()-5,(int)pixel.y()-5);
             }
         }
-        if(this.linesSolution!=null) {
-            Iterator<Path> pathIterator = this.linesSolution.getPaths().iterator();
-            while (pathIterator.hasNext()) {
-                Path path = pathIterator.next();
-                g.setColor(path.getColor());
-                Point3D pixel1, pixel2;
-                try {
-                    pixel1 = map.CoordsToPixels(path.getPacmanStartPosition(), getHeight(), getWidth());
+
+        while (GhostIterator.hasNext()) {
+            Ghost ghost = (Ghost) GhostIterator.next();
+                Point3D pixel;
+                try { //pixel might be out of map bounds.
+                    pixel = map.CoordsToPixels((Point3D)ghost.getGeom(), getHeight(), getWidth());
                 } catch (Exception e) {
                     showMessageToScreen(e.getMessage());
                     resetGame();
                     break;
                 }
-                Iterator<Fruit> fruitItPath = path.getFruitsInPath().iterator();
-                while (fruitItPath.hasNext()) {
-                    Fruit fruit = fruitItPath.next();
-                    try { //pixel might be out of map bounds.
-                        pixel2 = map.CoordsToPixels((Point3D) fruit.getGeom(), getHeight(), getWidth());
-                    } catch (Exception e) {
-                        showMessageToScreen(e.getMessage());
-                        resetGame();
-                        break;
-                    }
-                    Graphics2D g2 = (Graphics2D) g;
-                    g2.setStroke(new BasicStroke(3));
-                    g2.drawLine((int) pixel1.x(), (int) pixel1.y(), (int) pixel2.x(), (int) pixel2.y());
-                    pixel1 = pixel2;
-                }
-            }
+                g.setColor(Color.decode(ghost.getData().getColor()));
+                g.fillOval((int) pixel.x()-5, (int) pixel.y()-5, 20, 20);
+                g.drawString("IDGhost:"+ghost.getID(),(int)pixel.x()-5,(int)pixel.y()-5);
         }
+
+
 
 //        System.out.println("Finished paint");
     }
@@ -139,8 +127,6 @@ public class MyFrame extends JPanel implements MouseListener {
 
     private void resetGame() {
         this.game = new Game();
-        if(linesSolution!=null) //if we have a solution after running algorithm, we will have to erase its paths .
-            linesSolution.getPaths().clear();
         if(ourJFrame.paintThread != null){
             ourJFrame.paintThread.stopAnimKillThread();
         }
@@ -164,21 +150,21 @@ public class MyFrame extends JPanel implements MouseListener {
         Menu algoMenu = new Menu("Algorithm");
 
 
-        MenuItem pacmenItemMenu = new MenuItem("Pacman");
+        MenuItem player = new MenuItem("Add Player");
         MenuItem fruitItemMenu = new MenuItem("Fruit");
         MenuItem reset = new MenuItem("Reset");
+        MenuItem LoadboazCSV = new MenuItem("LoadboazCSV");
 
 
 
-        fruitItemMenu.addActionListener(e -> ourJFrame.typeToAdd = 2);
-        pacmenItemMenu.addActionListener((e -> ourJFrame.typeToAdd = 1));
+        player.addActionListener((e -> ourJFrame.typeToAdd = 1));
 
         //reset clicked
         reset.addActionListener(e -> {
             ourJFrame.resetGame();
             ourJFrame.repaint();
         });
-        addMenu.add(pacmenItemMenu);
+        addMenu.add(player);
         addMenu.add(fruitItemMenu);
         addMenu.add(reset);
 
@@ -191,13 +177,16 @@ public class MyFrame extends JPanel implements MouseListener {
         algoMenu.add(run);
 
 
-        //load file
-        fileMenu.add(loadFromCsvItemMenu);
-        loadFromCsvItemMenu.addActionListener(e->{
+
+
+
+        //load csv of boaz
+        fileMenu.add(LoadboazCSV);
+        LoadboazCSV.addActionListener(e->{
             if(ourJFrame.paintThread != null){ //if we have a thread painting in the background, we will stop the animation and kill the thread.
                 ourJFrame.paintThread.stopAnimKillThread();
             }
-            JFileChooser chooser = new JFileChooser("./Resources/dataExamples");
+            JFileChooser chooser = new JFileChooser("./Resources/Data");
             FileNameExtensionFilter filter =   new FileNameExtensionFilter(
                     "CSV Files", "csv");
             chooser.setFileFilter(filter);
@@ -205,12 +194,24 @@ public class MyFrame extends JPanel implements MouseListener {
             int returnValue = chooser.showOpenDialog(null);
             if(returnValue == JFileChooser.APPROVE_OPTION){
                 File file = new File(String.valueOf(chooser.getSelectedFile()));
-                ourJFrame.loadFile(file);
+                String file_name = file.getAbsolutePath();
+                ourJFrame.play = new Play(file_name);
+                ourJFrame.play.setIDs(311508220,316602630);
+                ourJFrame.game = new Game(ourJFrame.play.getBoard());
+
                 System.out.println(chooser.getSelectedFile());
             }else{
                 System.out.println("No file selected.");
             }
+            ArrayList<String> board_data = ourJFrame.play.getBoard();
+            for(int i=0;i<board_data.size();i++) {
+                System.out.println(board_data.get(i));
+            }
+            ourJFrame.repaint();
         });
+
+
+
 
         //save file
         fileMenu.add(saveToCsvItemMenu);
@@ -237,22 +238,6 @@ public class MyFrame extends JPanel implements MouseListener {
             }
         });
 
-        //export to kml clicked
-        fileMenu.add(exportToKML);
-        exportToKML.addActionListener(e->{
-            if(ourJFrame.paintThread != null){ //if we have a thread painting in the background, we will stop the animation and kill the thread.
-                ourJFrame.paintThread.stopAnimKillThread();
-            }
-            if(linesSolution==null){
-                showMessageToScreen("You have to run the algorithm first to find the paths solution.\n" +
-                        "After that, you can try to export again.");
-            }
-            else {
-                String fileName = JOptionPane.showInputDialog("Enter name for your kml file (without extension): ");
-                Path2KML toKml = new Path2KML();
-                toKml.constructKML(fileName, linesSolution, ourJFrame.game);
-            }
-        });
 
         //run algo clicked
         run.addActionListener(l->{ if(ourJFrame.paintThread != null && ourJFrame.paintThread.isKeepGoing()){ /*if we have a thread painting in the background, we will stop the animation and kill the thread.*/ourJFrame.paintThread.stopAnimKillThread();
@@ -279,29 +264,29 @@ public class MyFrame extends JPanel implements MouseListener {
      * if the timeToComplete is lower then the lowest time we got untill now, we will save the new Solution and the new BestTime.
      */
     private void runAlgo() {
-        if(this.game.getPacmen().size() == 0){
-            throw new RuntimeException("No pacmen to calculate solution.");
-        } else if(this.game.getFruits().size() == 0){
-            throw new RuntimeException("No fruits to calculate solution.");
-        }
-        ArrayList<GIS_element> packmen = new ArrayList<>(this.game.getPacmen());
-        Solution bestSolution = null;
-        long bestTime = Long.MAX_VALUE;
-        for(int i=0;i<packmen.size()*game.getFruits().size()*2;i++) { //change to get faster speed -> less optimized solution.
-            Collections.shuffle(packmen);
-            ShortestPathAlgo algo = new ShortestPathAlgo(packmen,game.getFruits());
-            Solution algoSolution = algo.runAlgo();
-            if (bestTime > algoSolution.timeToComplete()) {
-                bestSolution = algoSolution;
-                bestTime = (long)algoSolution.timeToComplete();
-            }
-        }
-        linesSolution = bestSolution;
-        resetTimeAfterAlgoAndSetEatenTimes(linesSolution);
-        System.out.println("Total time to complete all paths: " + linesSolution.timeToComplete()/1000);
-        paintThread = new Painter(bestSolution,ourJFrame);
-        Thread repainter = new Thread(paintThread);
-        repainter.start();
+//        if(this.game.getPacmen().size() == 0){
+//            throw new RuntimeException("No pacmen to calculate solution.");
+//        } else if(this.game.getFruits().size() == 0){
+//            throw new RuntimeException("No fruits to calculate solution.");
+//        }
+//        ArrayList<GIS_element> packmen = new ArrayList<>(this.game.getPacmen());
+//        Solution bestSolution = null;
+//        long bestTime = Long.MAX_VALUE;
+//        for(int i=0;i<packmen.size()*game.getFruits().size()*2;i++) { //change to get faster speed -> less optimized solution.
+//            Collections.shuffle(packmen);
+//            ShortestPathAlgo algo = new ShortestPathAlgo(packmen,game.getFruits());
+//            Solution algoSolution = algo.runAlgo();
+//            if (bestTime > algoSolution.timeToComplete()) {
+//                bestSolution = algoSolution;
+//                bestTime = (long)algoSolution.timeToComplete();
+//            }
+//        }
+//        linesSolution = bestSolution;
+//        resetTimeAfterAlgoAndSetEatenTimes(linesSolution);
+//        System.out.println("Total time to complete all paths: " + linesSolution.timeToComplete()/1000);
+//        paintThread = new Painter(bestSolution,ourJFrame);
+//        Thread repainter = new Thread(paintThread);
+//        repainter.start();
 
     }
 
@@ -332,22 +317,6 @@ public class MyFrame extends JPanel implements MouseListener {
         this.game.saveGameToCsv(file.getAbsolutePath());
     }
 
-    /**This function will get File object, and load it into our game.
-     *
-     * @param file - File to load
-     */
-    private void loadFile(File file) {
-        resetGame();
-        try {
-            this.game = new Game(file);
-            repaint();
-            //
-        }catch (Exception e){ //CSV might be corrupted or not supported.
-            showMessageToScreen("This CSV file is not compatible with our game.");
-            resetGame();
-        }
-
-    }
 
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -356,21 +325,12 @@ public class MyFrame extends JPanel implements MouseListener {
             showMessageToScreen("You clicked to add into the map while animation was running.\n" +
                     "We will stop the animation now.");
         }
-        if (typeToAdd == 1) {
-            Point3D point = new Point3D(e.getX(), e.getY(), 0);
-            Point3D globalpoint = map.PixelsToCoords(point, getHeight(), getWidth());
-            Meta_data_element pacman_meta = new Meta_data_element("Packman name", "P"); //color is white as default.
-            Packman pac = new Packman(globalpoint, pacman_meta,this.game.getIDpacs(), 1, 1); //orientation is (1,1,1) as default.
-            this.game.setIDpacs(this.game.getIDpacs()+1);
-            game.getPacmen().add(pac);
-        }
-        if (typeToAdd == 2) {
-            Point3D point = new Point3D(e.getX(), e.getY(), 0);
-            Point3D globalpoint2 = map.PixelsToCoords(point, getHeight(), getWidth());
-            Meta_data_element fruit_meta = new Meta_data_element("Fruit name", "F"); //color is red as default.
-            Fruit fruit = new Fruit(globalpoint2,fruit_meta,this.game.getIDfruits(),1); //default weight for fruit
-            this.game.setIDfruits(this.game.getIDfruits()+1);
-            game.getFruits().add(fruit);
+        if (typeToAdd == 1 && !ourJFrame.game.hasPlayer()) {
+            Point3D pointPixel = new Point3D(e.getX(), e.getY(), 0);
+            Point3D globalPoint = map.PixelsToCoords(pointPixel, getHeight(), getWidth());
+            //TODO: Check if inBound BOX
+            ourJFrame.play.setInitLocation(globalPoint.x(),globalPoint.y());
+            typeToAdd=2;
         }
         repaint();
     }

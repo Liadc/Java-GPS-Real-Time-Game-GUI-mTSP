@@ -3,6 +3,7 @@ package Game;
 import GIS.GIS_element_obj;
 import GIS.Meta_data_element;
 import Geom.Geom_element;
+import Geom.Point3D;
 
 /**
  * This class represents a Fruit object inside our game (target) it extends the GIS_element_obj, and will also hold these extra fields:
@@ -46,7 +47,21 @@ public class Fruit extends GIS_element_obj{
         this.ID = ID;
 
     }
+    public Fruit(String line) {
+        super();
+        String[] arr = line.split(",");
+        String p = arr[2] + "," + arr[3] + "," + arr[4];
+        Point3D point = new Point3D(p);
+        setGeom(point);
 
+        try {
+            this.ID = Integer.parseInt(arr[1]);
+            this.weight = Double.parseDouble(arr[5]);
+            this.setMetaData(new Meta_data_element("Fruit", "F"));
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Exception creating new Fruit, " + e.getMessage());
+        }
+    }
     /*** Getters and Setters ***/
     public double getWeight() {
         return this.weight;

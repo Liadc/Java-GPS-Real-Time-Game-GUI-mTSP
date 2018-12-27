@@ -24,6 +24,12 @@ public class Player extends GIS_element_obj {
         super(geometryOfElement, dataOfElement, ID);
     }
 
+    public Player() {
+        super();
+        this.speed = 0;
+        this.eatRadius = 0;
+    }
+
     /**
      * Constructor for the GIS_element object. gets a String.
      * the string will be splitted and each argument will be sent to the right construction.
