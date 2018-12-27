@@ -72,5 +72,7 @@ public class Ex4_Main_Example {
 		// 9) print the data & save to the course DB
 		String info = play1.getStatistics();
 		System.out.println(info);
+		System.out.println("Bounding Box info: "+map_data);
 	}
+
 }

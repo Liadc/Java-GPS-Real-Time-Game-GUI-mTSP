@@ -7,6 +7,7 @@ import Geom.Point3D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -17,8 +18,9 @@ public class Game {
 
     private GIS_layer fruits;
     private GIS_layer pacmen;
-    private int IDfruits = 0;
-    private int IDpacs = 0;
+    private GIS_layer ghosts;
+    private GIS_layer obstacles;
+    private Player player;
 
     /**
      * Default constructor for the Game. will initiate empty layer for fruits, and an empty layer for pacmen.
@@ -28,33 +30,41 @@ public class Game {
         pacmen.setMeta(new Meta_data_layerAndProject("Pacmen Layer"));
         fruits = new GIS_layer_obj();
         fruits.setMeta(new Meta_data_layerAndProject("Fruits Layer"));
-        this.setIDfruits(0);
-        this.setIDpacs(0);
+        ghosts = new GIS_layer_obj();
+        ghosts.setMeta(new Meta_data_layerAndProject("Ghosts Layer"));
+        obstacles = new GIS_layer_obj();
+        obstacles.setMeta(new Meta_data_layerAndProject("Obstacles Layer"));
+        player = null;
     }
 
-    /**
-     * Constructor to build the game from a saved CSV file. loads the data and creates the object.
-     * @param csvGameFile CSV file to load.
-     */
-
-    public Game(File csvGameFile) {
+    public Game(ArrayList<String> board) {
         pacmen = new GIS_layer_obj();
         pacmen.setMeta(new Meta_data_layerAndProject("Pacmen Layer"));
         fruits = new GIS_layer_obj();
         fruits.setMeta(new Meta_data_layerAndProject("Fruits Layer"));
-        Csv2Layer layer = new Csv2Layer();
-        GIS_layer fullLayer = layer.csv2Layer(csvGameFile.getAbsolutePath());
-        Iterator fullIterator = fullLayer.iterator();
-        while(fullIterator.hasNext()){
-            GIS_element elem = (GIS_element) fullIterator.next();
-            if(elem.getData().getType().equals("P")){
-                Packman pac = (Packman)elem;
-                pacmen.add(pac);
-                this.setIDpacs(this.getIDpacs()+1);
-            }else if(elem.getData().getType().equals("F")){
-                Fruit fruit = (Fruit)elem;
+        ghosts = new GIS_layer_obj();
+        ghosts.setMeta(new Meta_data_layerAndProject("Ghosts Layer"));
+        obstacles = new GIS_layer_obj();
+        obstacles.setMeta(new Meta_data_layerAndProject("Obstacles Layer"));
+        player = null;
+        Iterator<String> lines = board.iterator();
+        while(lines.hasNext()){
+            String line = lines.next();
+            if (line.charAt(0) == 'M'){
+                player = new Player(line);
+            }else if(line.charAt(0) == 'P'){
+                Packman pacman = new Packman(line);
+                pacmen.add(pacman);
+            }else if(line.charAt(0) == 'F'){
+                Fruit fruit = new Fruit(line);
                 fruits.add(fruit);
-                this.setIDfruits(this.getIDfruits()+1);
+            }else if(line.charAt(0) == 'G'){
+                Ghost ghost = new Ghost(line);
+                ghosts.add(ghost);
+            }else if(line.charAt(0) == 'B'){
+                Obstacle obstacle = new Obstacle(line);
+                obstacles.add(obstacle);
+
             }
         }
     }
@@ -135,20 +145,19 @@ public class Game {
         return pacmen;
     }
 
-    public int getIDfruits() {
-        return IDfruits;
+
+    public boolean hasPlayer() {
+        return  player != null;
     }
 
-    public void setIDfruits(int IDfruits) {
-        this.IDfruits = IDfruits;
+    public GIS_layer getGhosts() {
+        return ghosts;
     }
 
-    public int getIDpacs() {
-        return IDpacs;
+    public GIS_layer getObstacles() {
+        return obstacles;
     }
-
-    public void setIDpacs(int IDpacs) {
-        this.IDpacs = IDpacs;
+    public GIS_element getPlayer(){
+        return player;
     }
-
 }
