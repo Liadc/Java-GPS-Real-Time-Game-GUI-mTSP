@@ -14,6 +14,16 @@ public class GIS_element_obj implements GIS_element {
     private Meta_data metaData;
     private int ID;
 
+    /**
+     * Default constructor for the GIS_element_obj. it will create a new object without any geom or metaData,
+     * but with ID 0.
+     */
+    public GIS_element_obj(){
+        this.geom = null;
+        this.metaData = null;
+        this.ID = 0;
+    }
+
 
     /**
      * Constructor for the GIS_element object. gets a Geom_element, Meta_data and ID.
