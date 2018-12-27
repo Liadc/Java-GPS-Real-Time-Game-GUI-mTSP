@@ -15,6 +15,7 @@ import java.net.IDN;
  * provided by algorithm run) and an orientation.
  */
 public class Packman extends GIS_element_obj{
+
     private double speed;
     private double eatRadius;
 
