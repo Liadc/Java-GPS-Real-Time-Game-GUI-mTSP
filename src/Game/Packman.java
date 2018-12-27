@@ -29,7 +29,7 @@ public class Packman extends GIS_element_obj{
         String[] lineArr = line.split(",");
         try {
             this.setID(Integer.parseInt(lineArr[1]));
-            Point3D geom = new Point3D(Double.parseDouble(lineArr[2]), Double.parseDouble(lineArr[3]), Double.parseDouble(lineArr[4]));
+            Point3D geom = new Point3D(Double.parseDouble(lineArr[3]), Double.parseDouble(lineArr[2]), Double.parseDouble(lineArr[4]));
             this.setGeom(geom);
             this.setMetaData(new Meta_data_element("Packman", "P"));
             this.speed = Double.parseDouble(lineArr[5]);

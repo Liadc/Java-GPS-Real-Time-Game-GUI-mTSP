@@ -50,7 +50,7 @@ public class Fruit extends GIS_element_obj{
     public Fruit(String line) {
         super();
         String[] arr = line.split(",");
-        String p = arr[2] + "," + arr[3] + "," + arr[4];
+        String p = arr[3] + "," + arr[2] + "," + arr[4];
         Point3D point = new Point3D(p);
         setGeom(point);
 
