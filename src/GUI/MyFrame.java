@@ -35,7 +35,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
     private Image image; //game background image.
     private Game game; //game object to work with.
-    private int typeToAdd = 2; //1 for pacman, 2 for fruits.
+    private int typeToAdd = 1; //1 for player
     private Map map; //map object according to provided image.
     private static MyFrame ourJFrame;
     private Painter paintThread;
@@ -149,7 +149,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         if(ourJFrame.game.hasPlayer()) {
             Point3D pixelPlayer = (Point3D) ourJFrame.game.getPlayer().getGeom();
             pixelPlayer = map.CoordsToPixels(pixelPlayer, getHeight(), getWidth());
-            System.out.println("Prints player at position: "+pixelPlayer.x()+","+pixelPlayer.y());
             g.setColor(Color.white);
             g.fillOval((int) pixelPlayer.x()-6, (int) pixelPlayer.y()-6, 12, 12);
         }
@@ -173,7 +172,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         JFrame frame = new JFrame("Pacman and Fruits");
         ourJFrame = new MyFrame();
         frame.getContentPane().add(ourJFrame);
-        frame.setSize(900, 600);
+        frame.setSize(1200, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(true);
         frame.setVisible(true);
@@ -187,9 +186,8 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
 
         MenuItem player = new MenuItem("Add Player");
-        MenuItem fruitItemMenu = new MenuItem("Fruit");
         MenuItem reset = new MenuItem("Reset");
-        MenuItem LoadboazCSV = new MenuItem("LoadboazCSV");
+        MenuItem loadCSVex4 = new MenuItem("Load Game");
 
 
 
@@ -201,24 +199,18 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             ourJFrame.repaint();
         });
         addMenu.add(player);
-        addMenu.add(fruitItemMenu);
-        addMenu.add(reset);
 
-        MenuItem loadFromCsvItemMenu = new MenuItem("Load From CSV");
+
         MenuItem saveToCsvItemMenu = new MenuItem("Save To CSV");
-        MenuItem exportToKML = new MenuItem("Export to KML");
 
         MenuItem run = new MenuItem("Run");
 
         algoMenu.add(run);
 
 
-
-
-
-        //load csv of boaz
-        fileMenu.add(LoadboazCSV);
-        LoadboazCSV.addActionListener(e->{
+        //load CSV file for Ex4.
+        fileMenu.add(loadCSVex4);
+        loadCSVex4.addActionListener(e->{
             ourJFrame.resetGame();
             if(ourJFrame.paintThread != null){ //if we have a thread painting in the background, we will stop the animation and kill the thread.
                 ourJFrame.paintThread.stopAnimKillThread();
@@ -233,52 +225,27 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 File file = new File(String.valueOf(chooser.getSelectedFile()));
                 String file_name = file.getAbsolutePath();
                 ourJFrame.play = new Play(file_name);
-                ourJFrame.play.setIDs(311508220,316602630);
+                ourJFrame.play.setIDs(316602630,311508220);
                 ourJFrame.game = new Game(ourJFrame.play.getBoard());
 
                 System.out.println(chooser.getSelectedFile());
             }else{
                 System.out.println("No file selected.");
             }
-            ArrayList<String> board_data = ourJFrame.play.getBoard();
-            for(int i=0;i<board_data.size();i++) {
-                System.out.println(board_data.get(i));
+            if(ourJFrame.play!=null) {
+                System.out.println(ourJFrame.play.getStatistics());
+                ArrayList<String> board_data = ourJFrame.play.getBoard();
+                for (int i = 0; i < board_data.size(); i++) {
+                    System.out.println(board_data.get(i));
+                }
             }
             ourJFrame.repaint();
         });
 
-
-
-
-        //save file
-        fileMenu.add(saveToCsvItemMenu);
-        saveToCsvItemMenu.addActionListener(e->{
-            if(ourJFrame.paintThread != null){ //if we have a thread painting in the background, we will stop the animation and kill the thread.
-                ourJFrame.paintThread.stopAnimKillThread();
-            }
-            JFileChooser chooser = new JFileChooser("./Resources/dataExamples");
-            FileNameExtensionFilter filter =   new FileNameExtensionFilter(
-                    "CSV Files", "csv");
-            chooser.setFileFilter(filter);
-            chooser.setAcceptAllFileFilterUsed(false);  // disable the "All files" option.
-            int returnValue = chooser.showSaveDialog(null);
-            if(returnValue == JFileChooser.APPROVE_OPTION){
-                File file = new File(String.valueOf(chooser.getSelectedFile()));
-                if (file.getName().endsWith(".csv")) {
-                    ourJFrame.saveFile(file);
-                    System.out.println(chooser.getSelectedFile());
-                }else{
-                    JOptionPane.showMessageDialog(null, "Saved games must end with .csv file extension!! Try again.");
-                }
-            }else{
-                System.out.println("Cancel button pressed.");
-            }
-        });
-
-
         //run algo clicked
-        run.addActionListener(l->{ if(ourJFrame.paintThread != null && ourJFrame.paintThread.isKeepGoing()){ /*if we have a thread painting in the background, we will stop the animation and kill the thread.*/ourJFrame.paintThread.stopAnimKillThread();
-            }
+        run.addActionListener(l->{ if(ourJFrame.paintThread != null && ourJFrame.paintThread.isKeepGoing()){ /*if we have a thread painting in the background, we will stop the animation and kill the thread.*/
+            ourJFrame.paintThread.stopAnimKillThread();
+        }
             try {
                 ourJFrame.runAlgo();
             }catch (RuntimeException e){
@@ -286,6 +253,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
             }
         });
+        fileMenu.add(reset);
         MainMenu.add(fileMenu);
         MainMenu.add(addMenu);
         MainMenu.add(algoMenu);
@@ -301,59 +269,22 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
      * if the timeToComplete is lower then the lowest time we got untill now, we will save the new Solution and the new BestTime.
      */
     private void runAlgo() {
-//        if(this.game.getPacmen().size() == 0){
-//            throw new RuntimeException("No pacmen to calculate solution.");
-//        } else if(this.game.getFruits().size() == 0){
-//            throw new RuntimeException("No fruits to calculate solution.");
-//        }
-//        ArrayList<GIS_element> packmen = new ArrayList<>(this.game.getPacmen());
-//        Solution bestSolution = null;
-//        long bestTime = Long.MAX_VALUE;
-//        for(int i=0;i<packmen.size()*game.getFruits().size()*2;i++) { //change to get faster speed -> less optimized solution.
-//            Collections.shuffle(packmen);
-//            ShortestPathAlgo algo = new ShortestPathAlgo(packmen,game.getFruits());
-//            Solution algoSolution = algo.runAlgo();
-//            if (bestTime > algoSolution.timeToComplete()) {
-//                bestSolution = algoSolution;
-//                bestTime = (long)algoSolution.timeToComplete();
-//            }
-//        }
-//        linesSolution = bestSolution;
-//        resetTimeAfterAlgoAndSetEatenTimes(linesSolution);
-//        System.out.println("Total time to complete all paths: " + linesSolution.timeToComplete()/1000);
-//        paintThread = new Painter(bestSolution,ourJFrame);
-//        Thread repainter = new Thread(paintThread);
-//        repainter.start();
-
-    }
-
-    /**
-     * Because we run the algo couple times, we need to set the eating times for each packman, since they are eating from the
-     * beginning each run of the algorithm
-     * @param solution
-     */
-    private void resetTimeAfterAlgoAndSetEatenTimes(Solution solution){
-        Iterator<Path> paths = solution.getPaths().iterator();
-        while (paths.hasNext()) {
-            Path pt = paths.next();
-            pt.getPacmanInPath().getData().setUTCtime(solution.getTimeStart()); //reset pacman time to the time of best algorithm start time.
-            Iterator<Fruit> frIt = pt.getFruitsInPath().iterator();
-            while(frIt.hasNext()){
-                Fruit frInPath = frIt.next();
-                frInPath.getData().setUTCtime(solution.getTimeStart());//reset fruit time to the time of best algorithm start time.
-                frInPath.setTimeToEat((long)(pt.getDistance(pt.getFruitsInPath().indexOf(frInPath))/pt.getPacmanInPath().getSpeed()*1000)); //set eaten time for fruit in specific path in best algo solution.
-            }
+        if(this.game.getPacmen().size() == 0){
+            throw new RuntimeException("No pacmen to calculate solution.");
+        } else if(this.game.getFruits().size() == 0){
+            throw new RuntimeException("No fruits to calculate solution.");
         }
+        //TODO: implement method for algorithm to run. Question 4.
+        throw new RuntimeException("Not yet implemented.");
     }
 
-    /**
-     * This function will save our Game into csv file.
-     * @param file - get File Object to save the game into.
-     */
-    private void saveFile(File file) {
-        this.game.saveGameToCsv(file.getAbsolutePath());
+    private void printBoardAndStats(){
+        ArrayList<String> board_data = ourJFrame.play.getBoard();
+        for(int i=0;i<board_data.size();i++) {
+            System.out.println(board_data.get(i));
+        }
+        System.out.println(ourJFrame.play.getStatistics());
     }
-
 
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -362,40 +293,32 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             showMessageToScreen("You clicked to add into the map while animation was running.\n" +
                     "We will stop the animation now.");
         }
-        if (typeToAdd == 1 && !ourJFrame.game.hasPlayer()) {
+        if (typeToAdd == 1 && ourJFrame.play != null && !ourJFrame.game.hasPlayer()) {
             System.out.println("Adding player");
             Point3D pointPixel = new Point3D(e.getX(), e.getY(), 0);
             Point3D globalPoint = map.PixelsToCoords(pointPixel, getHeight(), getWidth());
             //TODO: Check if inBound BOX
             ourJFrame.game.addPlayer(globalPoint);
+            //todo: if there is no game selected but pacman is clicked to add, throw exception with message to screen.
             ourJFrame.play.setInitLocation(globalPoint.y(),globalPoint.x());
-            typeToAdd=2;
             repaint();
             ourJFrame.play.start();
+            typeToAdd=2;
         }
         else if(typeToAdd == 2 && ourJFrame.game.hasPlayer()){
-            //TODO: if we have time.
-//            Point3D pos = (Point3D)ourJFrame.game.getPlayer().getGeom();
-//            Cords coords = new Cords();
-//            Point3D clickPoint = new Point3D(e.getX(), e.getY(), 0);
-//            clickPoint = map.PixelsToCoords(clickPoint,getHeight(),getWidth());
-//            double[] clickPt = {clickPoint.x(), clickPoint.y(),0};
-//            double[] posArr = {pos.x(), pos.y(), pos.z()};
-//            double[] angle1 = coords.azmDist(posArr, clickPt);
-//            double angle = angle1[0];
-//            System.out.println(angle);
-//            while (angle<0){
-//                angle += 360;
-//            }
-//            System.out.println(angle);
-////            ArrayList<String> board_data = play.getBoard();
-////            for(int i=0;i<board_data.size();i++) {
-////                System.out.println(board_data.get(i));
-////            }
-//            ourJFrame.play.rotate(angle);
-//            ourJFrame.game = new Game(play.getBoard());
-//
-//            ourJFrame.repaint();
+            Point3D pos = (Point3D)ourJFrame.game.getPlayer().getGeom();
+            pos.transformXY();
+            MyCoords coords = new MyCoords();
+            Point3D clickPoint = new Point3D(e.getX(), e.getY(), 0); //in pixels.
+            clickPoint = map.PixelsToCoords(clickPoint,getHeight(),getWidth());
+            clickPoint.transformXY();
+            double[] azm = coords.azimuth_elevation_dist(pos,clickPoint );
+            double angle = azm[0];
+            ourJFrame.play.rotate(angle);
+            ourJFrame.game = new Game(play.getBoard());
+            printBoardAndStats();
+            System.out.println("Last move was rotate on Angle from player to click pixel: "+angle);
+            ourJFrame.repaint();
         }
     }
 
@@ -421,7 +344,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-        System.out.println("pressed " + e.getKeyChar());
     }
 
     @Override
@@ -431,21 +353,25 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             case KeyEvent.VK_UP:
                 ourJFrame.play.rotate(0);
                 ourJFrame.game = new Game(play.getBoard());
+                printBoardAndStats();
                 ourJFrame.repaint();
                 break;
             case KeyEvent.VK_DOWN:
                 ourJFrame.play.rotate(180);
                 ourJFrame.game = new Game(play.getBoard());
+                printBoardAndStats();
                 ourJFrame.repaint();
                 break;
             case KeyEvent.VK_LEFT:
                 ourJFrame.play.rotate(270);
                 ourJFrame.game = new Game(play.getBoard());
+                printBoardAndStats();
                 ourJFrame.repaint();
                 break;
             case KeyEvent.VK_RIGHT :
                 ourJFrame.play.rotate(90);
                 ourJFrame.game = new Game(play.getBoard());
+                printBoardAndStats();
                 ourJFrame.repaint();
                 break;
         }
