@@ -33,7 +33,7 @@ public class Ghost extends GIS_element_obj {
     public Ghost(String line){
         super();
         String[] arg = line.split(",");
-        Point3D LatLonAlt = new Point3D(arg[2]+","+arg[3]+","+"0");
+        Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
         setGeom(LatLonAlt);
         setMetaData(new Meta_data_element("Player","M"));
         try {

@@ -46,7 +46,6 @@ public class Game {
         ghosts.setMeta(new Meta_data_layerAndProject("Ghosts Layer"));
         obstacles = new GIS_layer_obj();
         obstacles.setMeta(new Meta_data_layerAndProject("Obstacles Layer"));
-        player = null;
         Iterator<String> lines = board.iterator();
         while(lines.hasNext()){
             String line = lines.next();
@@ -136,6 +135,13 @@ public class Game {
     }
 
 
+    public void addPlayer(Point3D pos){
+        player = new Player();
+        player.setID(0);
+        player.setGeom(pos);
+        player.setSpeed(20);
+        player.setEatRadius(1);
+    }
     /*** Getters  and Setters ***/
     public GIS_layer getFruits() {
         return fruits;
@@ -147,7 +153,11 @@ public class Game {
 
 
     public boolean hasPlayer() {
-        return  player != null;
+        if(player!=null) {
+            Point3D pos = (Point3D) (player.getGeom());
+            return !(pos.x() == 0 && pos.y() == 0);
+        }
+        return false;
     }
 
     public GIS_layer getGhosts() {

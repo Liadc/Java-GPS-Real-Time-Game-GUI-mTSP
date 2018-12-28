@@ -2,6 +2,8 @@ package GUI;
 
 //import Algorithms.ShortestPathAlgo;
 import Algorithms.Solution;
+import Coords.Cords;
+import Coords.MyCoords;
 import File_format.Path2KML;
 import Game.Fruit;
 import Game.Game;
@@ -11,12 +13,15 @@ import Game.Obstacle;
 import Game.Player;
 import Game.Packman;
 import Geom.Path;
+import Geom.GeomRectangle;
 import Geom.Point3D;
 import Robot.Play;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -26,11 +31,11 @@ import java.util.Iterator;
 /**
  * some of the code is taken from: https://javatutorial.net/display-text-and-graphics-java-jframe
  */
-public class MyFrame extends JPanel implements MouseListener {
+public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
     private Image image; //game background image.
     private Game game; //game object to work with.
-    private int typeToAdd = 0; //1 for pacman, 2 for fruits.
+    private int typeToAdd = 2; //1 for pacman, 2 for fruits.
     private Map map; //map object according to provided image.
     private static MyFrame ourJFrame;
     private Painter paintThread;
@@ -39,10 +44,13 @@ public class MyFrame extends JPanel implements MouseListener {
 
     public MyFrame() {
         this.game = new Game();
-        Point3D topLeft = new Point3D(32.101898,35.202369); //TODO: Change this hardCoded to Game Bounded (ourJframe.play.getBoundingBox();)
-        Point3D downRight = new Point3D(32.105728,35.212416);
+        Point3D topLeft = new Point3D(35.20236,32.10572); //TODO: Change this hardCoded to Game Bounded (ourJframe.play.getBoundingBox();)
+        Point3D downRight = new Point3D(35.21235,32.10194);
         this.map = new Map(new File("Resources/GameMaps/Ariel1.png"),topLeft,downRight);
         addMouseListener(this);
+        this.setFocusable(true);
+        this.requestFocus();
+        addKeyListener(this);
     }
 
     /**
@@ -117,6 +125,34 @@ public class MyFrame extends JPanel implements MouseListener {
                 g.drawString("IDGhost:"+ghost.getID(),(int)pixel.x()-5,(int)pixel.y()-5);
         }
 
+        while (ObstacleIterator.hasNext()) {
+            Obstacle obstacle = (Obstacle) ObstacleIterator.next();
+            Point3D upperLeft,upperRight,bottomLeft;
+            GeomRectangle rect = (GeomRectangle)obstacle.getGeom();
+            upperLeft = rect.getLeftUp();
+            upperRight = rect.getRightUp();
+            bottomLeft = rect.getLeftDown();
+            try { //pixel might be out of map bounds.
+                upperLeft = map.CoordsToPixels(upperLeft, getHeight(), getWidth());
+                upperRight = map.CoordsToPixels(upperRight, getHeight(), getWidth());
+                bottomLeft = map.CoordsToPixels(bottomLeft, getHeight(), getWidth());
+            } catch (Exception e) {
+                showMessageToScreen(e.getMessage());
+                resetGame();
+                break;
+            }
+            g.setColor(Color.BLACK); //todo: change to Color.decode(obstacle.getData().getColor())
+            g.fillRect((int)upperLeft.x(),(int)upperLeft.y(),(int)(upperRight.x()-upperLeft.x()),(int)(bottomLeft.y()-upperLeft.y()));
+        }
+
+        //print player if there is one
+        if(ourJFrame.game.hasPlayer()) {
+            Point3D pixelPlayer = (Point3D) ourJFrame.game.getPlayer().getGeom();
+            pixelPlayer = map.CoordsToPixels(pixelPlayer, getHeight(), getWidth());
+            System.out.println("Prints player at position: "+pixelPlayer.x()+","+pixelPlayer.y());
+            g.setColor(Color.white);
+            g.fillOval((int) pixelPlayer.x()-6, (int) pixelPlayer.y()-6, 12, 12);
+        }
 
 
 //        System.out.println("Finished paint");
@@ -183,6 +219,7 @@ public class MyFrame extends JPanel implements MouseListener {
         //load csv of boaz
         fileMenu.add(LoadboazCSV);
         LoadboazCSV.addActionListener(e->{
+            ourJFrame.resetGame();
             if(ourJFrame.paintThread != null){ //if we have a thread painting in the background, we will stop the animation and kill the thread.
                 ourJFrame.paintThread.stopAnimKillThread();
             }
@@ -326,13 +363,40 @@ public class MyFrame extends JPanel implements MouseListener {
                     "We will stop the animation now.");
         }
         if (typeToAdd == 1 && !ourJFrame.game.hasPlayer()) {
+            System.out.println("Adding player");
             Point3D pointPixel = new Point3D(e.getX(), e.getY(), 0);
             Point3D globalPoint = map.PixelsToCoords(pointPixel, getHeight(), getWidth());
             //TODO: Check if inBound BOX
-            ourJFrame.play.setInitLocation(globalPoint.x(),globalPoint.y());
+            ourJFrame.game.addPlayer(globalPoint);
+            ourJFrame.play.setInitLocation(globalPoint.y(),globalPoint.x());
             typeToAdd=2;
+            repaint();
+            ourJFrame.play.start();
         }
-        repaint();
+        else if(typeToAdd == 2 && ourJFrame.game.hasPlayer()){
+            //TODO: if we have time.
+//            Point3D pos = (Point3D)ourJFrame.game.getPlayer().getGeom();
+//            Cords coords = new Cords();
+//            Point3D clickPoint = new Point3D(e.getX(), e.getY(), 0);
+//            clickPoint = map.PixelsToCoords(clickPoint,getHeight(),getWidth());
+//            double[] clickPt = {clickPoint.x(), clickPoint.y(),0};
+//            double[] posArr = {pos.x(), pos.y(), pos.z()};
+//            double[] angle1 = coords.azmDist(posArr, clickPt);
+//            double angle = angle1[0];
+//            System.out.println(angle);
+//            while (angle<0){
+//                angle += 360;
+//            }
+//            System.out.println(angle);
+////            ArrayList<String> board_data = play.getBoard();
+////            for(int i=0;i<board_data.size();i++) {
+////                System.out.println(board_data.get(i));
+////            }
+//            ourJFrame.play.rotate(angle);
+//            ourJFrame.game = new Game(play.getBoard());
+//
+//            ourJFrame.repaint();
+        }
     }
 
     @Override
@@ -352,6 +416,43 @@ public class MyFrame extends JPanel implements MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        System.out.println("pressed " + e.getKeyChar());
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        switch( keyCode ) {
+            case KeyEvent.VK_UP:
+                ourJFrame.play.rotate(0);
+                ourJFrame.game = new Game(play.getBoard());
+                ourJFrame.repaint();
+                break;
+            case KeyEvent.VK_DOWN:
+                ourJFrame.play.rotate(180);
+                ourJFrame.game = new Game(play.getBoard());
+                ourJFrame.repaint();
+                break;
+            case KeyEvent.VK_LEFT:
+                ourJFrame.play.rotate(270);
+                ourJFrame.game = new Game(play.getBoard());
+                ourJFrame.repaint();
+                break;
+            case KeyEvent.VK_RIGHT :
+                ourJFrame.play.rotate(90);
+                ourJFrame.game = new Game(play.getBoard());
+                ourJFrame.repaint();
+                break;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
 
     }
 }

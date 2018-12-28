@@ -41,7 +41,7 @@ public class Player extends GIS_element_obj {
     public Player(String line){
         super();
         String[] arg = line.split(",");
-        Point3D LatLonAlt = new Point3D(arg[2]+","+arg[3]+","+"0");
+        Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
         setGeom(LatLonAlt);
         setMetaData(new Meta_data_element("Player","M"));
         try {
@@ -51,6 +51,22 @@ public class Player extends GIS_element_obj {
         } catch (NumberFormatException e) {
             throw new RuntimeException("Exception creating new Player "+e.getMessage());
         }
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public double getEatRadius() {
+        return eatRadius;
+    }
+
+    public void setEatRadius(double eatRadius) {
+        this.eatRadius = eatRadius;
     }
 
 
