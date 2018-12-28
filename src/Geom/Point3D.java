@@ -163,6 +163,12 @@ public final static int DOWN = 6, UP = 7;
 	
 	
 	////////////////////////////////////////////////////////////////
+	public void transformXY(){
+		double temp = this._x;
+		this._x = this._y;
+		this._y = temp;
+	}
+
 	public void rescale(Point3D center, Point3D vec) {
 		if(center!=null && vec != null)
 			rescale(center,vec.x(),vec.y(),vec.z());
