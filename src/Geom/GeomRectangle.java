@@ -16,6 +16,7 @@ public class GeomRectangle implements Geom_element{
      * @param leftDown the bottomLeft point of the rectangle.
      * @param rightUp the upperRight point of the rectangle.
      */
+
     public GeomRectangle(Point3D leftDown , Point3D rightUp){
         this.leftDown = leftDown;
         this.rightUp = rightUp;
