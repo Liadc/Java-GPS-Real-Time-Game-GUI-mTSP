@@ -68,6 +68,11 @@ public class Game {
         }
     }
 
+    public void updatePlayer(String firstBoardLine){
+        player.updateGeom(firstBoardLine);
+    }
+
+
     /**
      * Saves current game state into CSV file. returns CSV file path.
      * @return file path for CSV file.
