@@ -55,7 +55,7 @@ public class Fruit extends GIS_element_obj{
         setGeom(point);
 
         try {
-            this.ID = Integer.parseInt(arr[1]);
+            setID(Integer.parseInt(arr[1]));
             this.weight = Double.parseDouble(arr[5]);
             this.setMetaData(new Meta_data_element("Fruit", "F"));
         } catch (NumberFormatException e) {
