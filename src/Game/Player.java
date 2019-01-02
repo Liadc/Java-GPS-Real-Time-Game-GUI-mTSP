@@ -9,6 +9,7 @@ import Geom.Geom_element;
 import Geom.Point3D;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Player extends GIS_element_obj {
 
@@ -80,12 +81,17 @@ public class Player extends GIS_element_obj {
         return angle;
     }
 
+    /**
+     * This function will get a target and moves to target location until target is eaten
+     * @param target
+     */
     public void moveToEatTarget(GIS_element_obj target) {
         Point3D currentPos = (Point3D) this.getGeom();
         Point3D targetPos = (Point3D) target.getGeom();
         //check if distance is less than eating radius, return.
         if(distancePointFromEatRadius((Point3D) target.getGeom()) == 0) return;
         //otherwise
+        //todo: add to while: target.isNeccessary is true. (available in map).
         while (distancePointFromEatRadius((Point3D) target.getGeom()) != 0 && MyFrame.play.isRuning()){
             MyFrame.play.rotate(getAngleToTarget(target));
         }
@@ -93,9 +99,12 @@ public class Player extends GIS_element_obj {
     }
 
     public void moveToAllTargets(){
-//        while()
+        Iterator<GIS_element_obj> targetIt = targetsOrder.iterator();
+        while(MyFrame.play.isRuning() && targetIt.hasNext()){
+            GIS_element_obj target = targetIt.next();
+            moveToEatTarget(target);             //move to next target
+        }
     }
-
 
         /**
          * This method calculate distance point from radius of packman

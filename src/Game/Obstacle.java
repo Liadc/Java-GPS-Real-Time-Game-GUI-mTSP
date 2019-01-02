@@ -21,4 +21,8 @@ public class Obstacle extends GIS_element_obj {
             throw new RuntimeException("Exception creating new Player "+e.getMessage());
         }
     }
+
+    public boolean isPointInside(Point3D pt){
+        return ((GeomRectangle) getGeom()).isPointInside(pt);
+    }
 }
