@@ -1,6 +1,5 @@
 package Game;
 
-import Coords.LatLonAlt;
 import Coords.MyCoords;
 import GIS.GIS_element;
 import GIS.GIS_element_obj;

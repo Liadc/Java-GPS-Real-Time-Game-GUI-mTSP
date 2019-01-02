@@ -8,11 +8,11 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * This class represent a Path.
+ * Path include: Packman and his Fruit Routes.
+ */
 public class Path{
-        /**
-         * This class represent a Path.
-         * Path include: Packman and his Fruit Routes.
-         */
 
     private Packman pacmanInPath;
     private ArrayList<Fruit> fruitsInPath;
@@ -150,6 +150,8 @@ public class Path{
         }
         return (Point3D)fruitsInPath.get(pathPosition).getGeom();
     }
+
+
 
         /**
          * This method will add fruit to path, in the last position of the Array.
