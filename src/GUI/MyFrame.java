@@ -39,7 +39,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
     private Map map; //map object according to provided image.
     private static MyFrame ourJFrame;
     private Painter paintThread;
-    private Play play;
+    public static Play play;
 
 
     public MyFrame() {
@@ -172,7 +172,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         JFrame frame = new JFrame("Pacman and Fruits");
         ourJFrame = new MyFrame();
         frame.getContentPane().add(ourJFrame);
-        frame.setSize(1200, 800);
+        frame.setSize(1200, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(true);
         frame.setVisible(true);
