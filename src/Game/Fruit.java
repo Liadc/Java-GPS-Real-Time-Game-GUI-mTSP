@@ -95,6 +95,12 @@ public class Fruit extends GIS_element_obj{
     public String toString() {
         return "Fruit{"+this.ID+"}";
     }
+    public void updateGeom(String firstBoardLine) {
+        String[] arg = firstBoardLine.split(",");
+        Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
+        setGeom(LatLonAlt);
+    }
+
 
 
 }

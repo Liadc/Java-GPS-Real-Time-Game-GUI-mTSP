@@ -315,7 +315,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             double[] azm = coords.azimuth_elevation_dist(pos,clickPoint );
             double angle = azm[0];
             ourJFrame.play.rotate(angle);
-            ourJFrame.game = new Game(play.getBoard());
+            ourJFrame.game.updateGame(play.getBoard());
             printBoardAndStats();
             System.out.println("Last move was rotate on Angle from player to click pixel: "+angle);
             ourJFrame.repaint();

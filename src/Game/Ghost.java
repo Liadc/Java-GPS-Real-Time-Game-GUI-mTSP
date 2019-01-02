@@ -27,7 +27,7 @@ public class Ghost extends GIS_element_obj {
      * Constructor for the Ghost object. gets a String.
      * the string will be splitted and each argument will be sent to the right construction.
      *
-     * @param String line, The all data about this element.
+     * @param line, The all data about this element.
      *
      */
     public Ghost(String line){
@@ -43,5 +43,10 @@ public class Ghost extends GIS_element_obj {
         } catch (NumberFormatException e) {
             throw new RuntimeException("Exception creating new Player "+e.getMessage());
         }
+    }
+    public void updateGeom(String firstBoardLine) {
+        String[] arg = firstBoardLine.split(",");
+        Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
+        setGeom(LatLonAlt);
     }
 }

@@ -1,10 +1,11 @@
 package Game;
 
-import File_format.Csv2Layer;
-import GIS.*;
+import GIS.GIS_element;
+import GIS.GIS_layer;
+import GIS.GIS_layer_obj;
+import GIS.Meta_data_layerAndProject;
 import Geom.Point3D;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,20 +48,20 @@ public class Game {
         obstacles = new GIS_layer_obj();
         obstacles.setMeta(new Meta_data_layerAndProject("Obstacles Layer"));
         Iterator<String> lines = board.iterator();
-        while(lines.hasNext()){
+        while (lines.hasNext()) {
             String line = lines.next();
-            if (line.charAt(0) == 'M'){
+            if (line.charAt(0) == 'M') {
                 player = new Player(line);
-            }else if(line.charAt(0) == 'P'){
+            } else if (line.charAt(0) == 'P') {
                 Packman pacman = new Packman(line);
                 pacmen.add(pacman);
-            }else if(line.charAt(0) == 'F'){
+            } else if (line.charAt(0) == 'F') {
                 Fruit fruit = new Fruit(line);
                 fruits.add(fruit);
-            }else if(line.charAt(0) == 'G'){
+            } else if (line.charAt(0) == 'G') {
                 Ghost ghost = new Ghost(line);
                 ghosts.add(ghost);
-            }else if(line.charAt(0) == 'B'){
+            } else if (line.charAt(0) == 'B') {
                 Obstacle obstacle = new Obstacle(line);
                 obstacles.add(obstacle);
 
@@ -68,16 +69,108 @@ public class Game {
         }
     }
 
-    public void updatePlayer(String firstBoardLine){
+    public void updatePlayer(String firstBoardLine) {
         player.updateGeom(firstBoardLine);
+    }
+
+    public void updateFruit(String firstBoardLine) {
+        String[] parsed = firstBoardLine.split(",");
+        int updateID = 0;
+        try {
+            updateID = Integer.parseInt(parsed[1]);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        Iterator fruitIterator = fruits.iterator();
+        while (fruitIterator.hasNext()) {
+            Fruit fruit = (Fruit) fruitIterator.next();
+            if (fruit.getID() == updateID) {
+                fruit.updateGeom(firstBoardLine);
+                fruit.setNecessary(true);
+                break;
+            }
+        }
+    }
+
+    public void updatePackman(String firstBoardLine) {
+        String[] parsed = firstBoardLine.split(",");
+        int updateID = 0;
+        try {
+            updateID = Integer.parseInt(parsed[1]);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        Iterator pacmenIterator = pacmen.iterator();
+        while (pacmenIterator.hasNext()) {
+            Packman packman = (Packman) pacmenIterator.next();
+            if (packman.getID() == updateID) {
+                packman.updateGeom(firstBoardLine);
+                packman.setNecessary(true);
+                break;
+            }
+        }
+    }
+
+    public void updateGhost(String firstBoardLine) {
+        String[] parsed = firstBoardLine.split(",");
+        int updateID = 0;
+        try {
+            updateID = Integer.parseInt(parsed[1]);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        Iterator ghostIterator = ghosts.iterator();
+        while (ghostIterator.hasNext()) {
+            Ghost ghost = (Ghost) ghostIterator.next();
+            if (ghost.getID() == updateID) {
+                ghost.updateGeom(firstBoardLine);
+                ghost.setNecessary(true);
+                break;
+            }
+        }
+    }
+
+    public void updateGame(ArrayList<String> gameBoard) {
+
+        Iterator<String> lines = gameBoard.iterator();
+        while (lines.hasNext()) {
+            String line = lines.next();
+            if (line.charAt(0) == 'M') {
+                updatePlayer(line);
+            } else if (line.charAt(0) == 'P') {
+                updatePackman(line);
+            } else if (line.charAt(0) == 'F') {
+                updateFruit(line);
+            } else if (line.charAt(0) == 'G') {
+                updateGhost(line);
+            }
+        }
+        clearUnNecessary();
+        resetUnNecessary();
+    }
+
+    private void resetUnNecessary() {
+        for (GIS_element p : pacmen) {
+            p.setNecessary(false);
+        }
+        for (GIS_element f : fruits) {
+            f.setNecessary(false);
+        }
+    }
+
+
+    private void clearUnNecessary() {
+        pacmen.removeIf(pacman -> !pacman.isNecessary());
+        fruits.removeIf(fruit -> !fruit.isNecessary());
     }
 
 
     /**
      * Saves current game state into CSV file. returns CSV file path.
+     *
      * @return file path for CSV file.
      */
-    public void saveGameToCsv(String fullPath){
+    public void saveGameToCsv(String fullPath) {
         final String COMMA = ",";
         final String NEW_LINE = "\n";
         String CSVheader = "Type,id,Lat,Lon,Alt,Speed/Weight,Radius";
@@ -91,16 +184,16 @@ public class Game {
             //Write all pacmen objects to the CSV file
             Iterator itpackman = this.pacmen.iterator();
             while (itpackman.hasNext()) {
-                Packman pacman = (Packman)itpackman.next();
+                Packman pacman = (Packman) itpackman.next();
                 fileWriter.append(pacman.getData().getType()); //type
                 fileWriter.append(COMMA);
                 fileWriter.append(String.valueOf(pacman.getID())); //ID
                 fileWriter.append(COMMA);
-                fileWriter.append(String.valueOf(((Point3D)pacman.getGeom()).y())); //lat (same as boaz wrong files)
+                fileWriter.append(String.valueOf(((Point3D) pacman.getGeom()).y())); //lat (same as boaz wrong files)
                 fileWriter.append(COMMA);
-                fileWriter.append(String.valueOf(((Point3D)pacman.getGeom()).x())); //lon (same as boaz wrong files)
+                fileWriter.append(String.valueOf(((Point3D) pacman.getGeom()).x())); //lon (same as boaz wrong files)
                 fileWriter.append(COMMA);
-                fileWriter.append(String.valueOf(((Point3D)pacman.getGeom()).z())); //alt
+                fileWriter.append(String.valueOf(((Point3D) pacman.getGeom()).z())); //alt
                 fileWriter.append(COMMA);
                 fileWriter.append(String.valueOf(pacman.getSpeed()));
                 fileWriter.append(COMMA);
@@ -109,17 +202,17 @@ public class Game {
             }
             //Write all fruits objects to the CSV file
             Iterator itFruit = this.fruits.iterator();
-           while(itFruit.hasNext()) {
-                Fruit fruit = (Fruit)itFruit.next();
+            while (itFruit.hasNext()) {
+                Fruit fruit = (Fruit) itFruit.next();
                 fileWriter.append(fruit.getData().getType()); //type
                 fileWriter.append(COMMA);
                 fileWriter.append(String.valueOf(fruit.getID())); //ID
                 fileWriter.append(COMMA);
-                fileWriter.append(String.valueOf(((Point3D)fruit.getGeom()).y())); //lat (same as boaz wrong files)
+                fileWriter.append(String.valueOf(((Point3D) fruit.getGeom()).y())); //lat (same as boaz wrong files)
                 fileWriter.append(COMMA);
-                fileWriter.append(String.valueOf(((Point3D)fruit.getGeom()).x())); //lon (same as boaz wrong files)
+                fileWriter.append(String.valueOf(((Point3D) fruit.getGeom()).x())); //lon (same as boaz wrong files)
                 fileWriter.append(COMMA);
-                fileWriter.append(String.valueOf(((Point3D)fruit.getGeom()).z())); //alt
+                fileWriter.append(String.valueOf(((Point3D) fruit.getGeom()).z())); //alt
                 fileWriter.append(COMMA);
                 fileWriter.append(String.valueOf(fruit.getWeight()));
                 fileWriter.append(NEW_LINE);
@@ -140,13 +233,14 @@ public class Game {
     }
 
 
-    public void addPlayer(Point3D pos){
+    public void addPlayer(Point3D pos) {
         player = new Player();
         player.setID(0);
         player.setGeom(pos);
         player.setSpeed(20);
         player.setEatRadius(1);
     }
+
     /*** Getters  and Setters ***/
     public GIS_layer getFruits() {
         return fruits;
@@ -158,7 +252,7 @@ public class Game {
 
 
     public boolean hasPlayer() {
-        if(player!=null) {
+        if (player != null) {
             Point3D pos = (Point3D) (player.getGeom());
             return !(pos.x() == 0 && pos.y() == 0);
         }
@@ -172,7 +266,8 @@ public class Game {
     public GIS_layer getObstacles() {
         return obstacles;
     }
-    public GIS_element getPlayer(){
+
+    public GIS_element getPlayer() {
         return player;
     }
 }

@@ -13,6 +13,8 @@ public class GIS_element_obj implements GIS_element {
     private Geom_element geom;
     private Meta_data metaData;
     private int ID;
+    private boolean necessary=false;
+
 
     /**
      * Default constructor for the GIS_element_obj. it will create a new object without any geom or metaData,
@@ -88,5 +90,13 @@ public class GIS_element_obj implements GIS_element {
 
     public void setID(int ID) {
         this.ID = ID;
+    }
+
+    public boolean isNecessary() {
+        return necessary;
+    }
+
+    public void setNecessary(boolean necessary) {
+        this.necessary = necessary;
     }
 }
