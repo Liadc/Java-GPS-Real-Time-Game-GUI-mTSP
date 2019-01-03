@@ -40,6 +40,11 @@ public class GeomRectangle implements Geom_element{
         return coords.distance3d(leftUp, leftDown);
     }
 
+    //TODO: creates tests for this.
+    public boolean isPointInside(Point3D ptPos){
+        return ptPos.x()>=getLeftUp().x() && ptPos.x() <= getRightUp().x() &&
+                ptPos.y()>=getLeftUp().y() && ptPos.y() <= getLeftDown().y();
+    }
     //TODO: add function: gets a line (2 points) and returns boolean if it intersects with the rectangle.
 
 
