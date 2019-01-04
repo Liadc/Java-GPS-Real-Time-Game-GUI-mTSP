@@ -10,6 +10,7 @@ import Game.Game;
 import Game.Map;
 import Game.Ghost;
 import Game.Obstacle;
+import Game.ObstacleCorner;
 import Game.Player;
 import Game.Packman;
 import Geom.Path;
@@ -74,6 +75,9 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         Iterator FruitIterator = game.getFruits().iterator();
         Iterator GhostIterator = game.getGhosts().iterator();
         Iterator ObstacleIterator = game.getObstacles().iterator();
+        Iterator cornersIterator = null;
+        if(game.getObstacleCorners() != null)
+            cornersIterator = game.getObstacleCorners().iterator();
 
 
         while (PacIterator.hasNext()) {
@@ -145,6 +149,22 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             g.fillRect((int)upperLeft.x(),(int)upperLeft.y(),(int)(upperRight.x()-upperLeft.x()),(int)(bottomLeft.y()-upperLeft.y()));
         }
 
+        while (cornersIterator!=null && cornersIterator.hasNext()) {
+            ObstacleCorner corner = (ObstacleCorner)cornersIterator.next();
+            Point3D pixel;
+            try { //pixel might be out of map bounds.
+                pixel = map.CoordsToPixels((Point3D)corner.getGeom(), getHeight(), getWidth());
+            } catch (Exception e) {
+                showMessageToScreen(e.getMessage());
+                resetGame();
+                break;
+            }
+            g.setColor(Color.CYAN);
+            g.fillOval((int) pixel.x()-5, (int) pixel.y()-5, 10, 10);
+//            g.drawString("ID:"+fruit.getID(),(int)pixel.x()-5,(int)pixel.y()-5);
+        }
+
+
         //print player if there is one
         if(ourJFrame.game.hasPlayer()) {
             Point3D pixelPlayer = (Point3D) ourJFrame.game.getPlayer().getGeom();
@@ -204,8 +224,10 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         MenuItem saveToCsvItemMenu = new MenuItem("Save To CSV");
 
         MenuItem run = new MenuItem("Run");
+        MenuItem corners = new MenuItem("Add Corners");
 
         algoMenu.add(run);
+        algoMenu.add(corners);
 
 
         //load CSV file for Ex4.
@@ -253,6 +275,12 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
             }
         });
+
+        corners.addActionListener(e->{
+            ourJFrame.game.initCorners();
+            ourJFrame.repaint();
+        });
+
         fileMenu.add(reset);
         MainMenu.add(fileMenu);
         MainMenu.add(addMenu);
