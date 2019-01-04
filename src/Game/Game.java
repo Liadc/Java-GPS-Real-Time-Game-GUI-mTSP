@@ -1,5 +1,6 @@
 package Game;
 
+import Algorithms.PathsAvoidObstacles;
 import GIS.GIS_element;
 import GIS.GIS_layer;
 import GIS.GIS_layer_obj;
@@ -21,6 +22,7 @@ public class Game {
     private GIS_layer pacmen;
     private GIS_layer ghosts;
     private GIS_layer obstacles;
+    private GIS_layer obstacleCorners;
     private Player player;
 
     /**
@@ -149,6 +151,12 @@ public class Game {
         resetUnNecessary();
     }
 
+    public void initCorners(){
+        PathsAvoidObstacles obsAvoider = new PathsAvoidObstacles();
+        setObstacleCorners((GIS_layer)(obsAvoider.createObstacleCorners(this.getObstacles())));
+    }
+
+
     private void resetUnNecessary() {
         for (GIS_element p : pacmen) {
             p.setNecessary(false);
@@ -270,4 +278,13 @@ public class Game {
     public GIS_element getPlayer() {
         return player;
     }
+
+    public GIS_layer getObstacleCorners() {
+        return obstacleCorners;
+    }
+
+    public void setObstacleCorners(GIS_layer obstacleCorners) {
+        this.obstacleCorners = obstacleCorners;
+    }
+
 }
