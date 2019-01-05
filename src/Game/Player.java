@@ -14,7 +14,7 @@ public class Player extends GIS_element_obj {
 
     private double speed;
     private double eatRadius;
-    private ArrayList<GIS_element_obj> targetsOrder;
+    private ArrayList<GIS_element> targetsOrder;
 
     private static MyCoords coords = new MyCoords();
 
@@ -33,8 +33,8 @@ public class Player extends GIS_element_obj {
 
     public Player() {
         super();
-        this.speed = 0;
-        this.eatRadius = 0;
+        this.speed = 20.0;
+        this.eatRadius = 1;
         targetsOrder = new ArrayList<>();
     }
 
@@ -94,7 +94,7 @@ public class Player extends GIS_element_obj {
             MyFrame.game.updateGame(MyFrame.play.getBoard());
             MyFrame.ourJFrame.paintImmediately(0,0,MyFrame.ourJFrame.getWidth(),MyFrame.ourJFrame.getHeight());
             try {
-                Thread.sleep(100);
+                Thread.sleep(33); //30 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -107,26 +107,26 @@ public class Player extends GIS_element_obj {
      * a fruit is eaten by another packmen) while the player is on the way to the fruits, it will move to the next target in it's arraylist of targets.
      */
     public void moveToAllTargets(){
-        Iterator<GIS_element_obj> targetIt = targetsOrder.iterator();
+        Iterator<GIS_element> targetIt = targetsOrder.iterator();
         while(MyFrame.play.isRuning() && targetIt.hasNext()){
-            GIS_element_obj target = targetIt.next();
+            GIS_element target = targetIt.next();
             if(!target.isEaten())
                 moveToEatTarget(target);             //move to next target
         }
     }
 
-        /**
-         * This method calculate distance point from radius of packman
-         * @param p - point to distance to
-         * @return the distance between the Radius of packman to Point p.
-         */
-        public double distancePointFromEatRadius(Point3D p){
-            MyCoords coords = new MyCoords();
-            double d = coords.distance3d(p,(Point3D)this.getGeom());
-            double dr = d - this.getEatRadius();
-            double ans = Math.max(0, dr);
-            return ans;
-        }
+    /**
+     * This method calculate distance point from radius of packman
+     * @param p - point to distance to
+     * @return the distance between the Radius of packman to Point p.
+     */
+    public double distancePointFromEatRadius(Point3D p){
+        MyCoords coords = new MyCoords();
+        double d = coords.distance3d(p,(Point3D)this.getGeom());
+        double dr = d - this.getEatRadius();
+        double ans = Math.max(0, dr);
+        return ans;
+    }
 
 
     public void updateGeom(String firstBoardLine) {
@@ -137,15 +137,15 @@ public class Player extends GIS_element_obj {
 
     /*** Targets for player ***/
 
-    public void addTarget(GIS_element_obj target){
+    public void addTarget(GIS_element target){
         this.targetsOrder.add(target);
     }
 
-    public void addTargetsList(Set targets){
+    public void addTargetsList(ArrayList<GIS_element> targets){
         this.targetsOrder.addAll(targets);
     }
 
-    public void removeTarget(GIS_element_obj target){
+    public void removeTarget(GIS_element target){
         this.targetsOrder.remove(target);
     }
 
