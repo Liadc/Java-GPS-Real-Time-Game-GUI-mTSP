@@ -1,15 +1,14 @@
 package Game;
 
 import Coords.MyCoords;
-import GIS.GIS_element_obj;
-import GIS.Meta_data;
-import GIS.Meta_data_element;
+import GIS.*;
 import GUI.MyFrame;
 import Geom.Geom_element;
 import Geom.Point3D;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Set;
 
 public class Player extends GIS_element_obj {
 
@@ -63,20 +62,14 @@ public class Player extends GIS_element_obj {
         targetsOrder = new ArrayList<>();
     }
 
-    public void addTarget(GIS_element_obj target){
-        this.targetsOrder.add(target);
-    }
 
-    public void removeTarget(GIS_element_obj target){
-        this.targetsOrder.remove(target);
-    }
 
     /**
      * Given a gis_element_obj as target, this method will return the angle from the player position to this target.
      * @param target gis_element_obj, such as fruit,packmen, etc.
      * @return the angle, in degrees (Double), to the target.
      */
-    public double getAngleToTarget(GIS_element_obj target){
+    public double getAngleToTarget(GIS_element target){
         Point3D trPoint = (Point3D)target.getGeom();
         trPoint.transformXY();
         Point3D currentPos = (Point3D)this.getGeom();
@@ -90,16 +83,23 @@ public class Player extends GIS_element_obj {
      * This function will get a target and moves to target location until target is eaten
      * @param target gis_element_obj, such as a fruit or packmen, etc.
      */
-    public void moveToEatTarget(GIS_element_obj target) {
+    public void moveToEatTarget(GIS_element target) {
         Point3D currentPos = (Point3D) this.getGeom();
         Point3D targetPos = (Point3D) target.getGeom();
         //check if distance is less than eating radius, if so, return. if target is no longer available in map (already eaten), return.
-        if(distancePointFromEatRadius((Point3D) target.getGeom()) == 0 || !target.isNecessary()) return;
+        if(distancePointFromEatRadius((Point3D) target.getGeom()) == 0 ) return;
         //otherwise
-        while (MyFrame.play.isRuning() && distancePointFromEatRadius((Point3D) target.getGeom()) != 0 && target.isNecessary()){
-                MyFrame.play.rotate(getAngleToTarget(target));
+        while (MyFrame.play.isRuning() && distancePointFromEatRadius((Point3D) target.getGeom()) != 0 && !target.isEaten()){
+            MyFrame.play.rotate(getAngleToTarget(target));
+            MyFrame.game.updateGame(MyFrame.play.getBoard());
+            MyFrame.ourJFrame.paintImmediately(0,0,MyFrame.ourJFrame.getWidth(),MyFrame.ourJFrame.getHeight());
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        targetsOrder.remove(target);
+        target.setEaten(true);
     }
 
     /**
@@ -110,7 +110,7 @@ public class Player extends GIS_element_obj {
         Iterator<GIS_element_obj> targetIt = targetsOrder.iterator();
         while(MyFrame.play.isRuning() && targetIt.hasNext()){
             GIS_element_obj target = targetIt.next();
-            if(target.isNecessary())
+            if(!target.isEaten())
                 moveToEatTarget(target);             //move to next target
         }
     }
@@ -135,6 +135,19 @@ public class Player extends GIS_element_obj {
         setGeom(LatLonAlt);
     }
 
+    /*** Targets for player ***/
+
+    public void addTarget(GIS_element_obj target){
+        this.targetsOrder.add(target);
+    }
+
+    public void addTargetsList(Set targets){
+        this.targetsOrder.addAll(targets);
+    }
+
+    public void removeTarget(GIS_element_obj target){
+        this.targetsOrder.remove(target);
+    }
 
     /**** getters and setters ****/
 
