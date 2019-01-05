@@ -71,6 +71,11 @@ public class Player extends GIS_element_obj {
         this.targetsOrder.remove(target);
     }
 
+    /**
+     * Given a gis_element_obj as target, this method will return the angle from the player position to this target.
+     * @param target gis_element_obj, such as fruit,packmen, etc.
+     * @return the angle, in degrees (Double), to the target.
+     */
     public double getAngleToTarget(GIS_element_obj target){
         Point3D trPoint = (Point3D)target.getGeom();
         trPoint.transformXY();
@@ -83,26 +88,30 @@ public class Player extends GIS_element_obj {
 
     /**
      * This function will get a target and moves to target location until target is eaten
-     * @param target
+     * @param target gis_element_obj, such as a fruit or packmen, etc.
      */
     public void moveToEatTarget(GIS_element_obj target) {
         Point3D currentPos = (Point3D) this.getGeom();
         Point3D targetPos = (Point3D) target.getGeom();
-        //check if distance is less than eating radius, return.
-        if(distancePointFromEatRadius((Point3D) target.getGeom()) == 0) return;
+        //check if distance is less than eating radius, if so, return. if target is no longer available in map (already eaten), return.
+        if(distancePointFromEatRadius((Point3D) target.getGeom()) == 0 || !target.isNecessary()) return;
         //otherwise
-        //todo: add to while: target.isNeccessary is true. (available in map).
-        while (distancePointFromEatRadius((Point3D) target.getGeom()) != 0 && MyFrame.play.isRuning()){
-            MyFrame.play.rotate(getAngleToTarget(target));
+        while (MyFrame.play.isRuning() && distancePointFromEatRadius((Point3D) target.getGeom()) != 0 && target.isNecessary()){
+                MyFrame.play.rotate(getAngleToTarget(target));
         }
         targetsOrder.remove(target);
     }
 
+    /**
+     * This method will move to all current available targets, one by one. if, for any reason, a target becomes unavailable(such as
+     * a fruit is eaten by another packmen) while the player is on the way to the fruits, it will move to the next target in it's arraylist of targets.
+     */
     public void moveToAllTargets(){
         Iterator<GIS_element_obj> targetIt = targetsOrder.iterator();
         while(MyFrame.play.isRuning() && targetIt.hasNext()){
             GIS_element_obj target = targetIt.next();
-            moveToEatTarget(target);             //move to next target
+            if(target.isNecessary())
+                moveToEatTarget(target);             //move to next target
         }
     }
 
