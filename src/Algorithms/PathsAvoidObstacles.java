@@ -55,7 +55,7 @@ public class PathsAvoidObstacles {
             corner = new ObstacleCorner(botRightPos);
             cornersSet.add(corner);
         }
-        //run through all corners made, check for each one if it inside one of the obstacles.
+        //run through all corners made, check for each one if it's inside one of the obstacles.
         Iterator<GIS_element> cornerIt = cornersSet.iterator();
         while(cornerIt.hasNext()){
             GIS_element obj = cornerIt.next();
@@ -77,7 +77,7 @@ public class PathsAvoidObstacles {
 
     /**
      * This method gets a source point and a given target Point3D position.
-     * it calculates the shortest path to the given target while avoiding collision with obstacles.
+     * it calculates and returns the shortest path to the given target while avoiding collision with obstacles.
      */
     public ArrayList<GIS_element> pathToTargetInclObstacles(GIS_element_obj target){
         ArrayList<GIS_element> path = null;
