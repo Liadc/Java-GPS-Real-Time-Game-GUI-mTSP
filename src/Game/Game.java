@@ -168,6 +168,13 @@ public class Game {
 
 
     private void clearUnNecessary() {
+        ArrayList<GIS_element> pacFruits = new ArrayList<>(pacmen);
+        pacFruits.addAll(fruits);
+        for(GIS_element elem : pacFruits){ //if objects are about to remove from the game, we set their 'eaten' field to TRUE.
+            if (!elem.isNecessary()) {
+                elem.setEaten(true);
+            }
+        }
         pacmen.removeIf(pacman -> !pacman.isNecessary());
         fruits.removeIf(fruit -> !fruit.isNecessary());
     }
