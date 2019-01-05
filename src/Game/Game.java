@@ -247,6 +247,9 @@ public class Game {
         }
     }
 
+    public void addPlayer(Player player) {
+        this.player = player;
+    }
 
     public void addPlayer(Point3D pos) {
         player = new Player();
