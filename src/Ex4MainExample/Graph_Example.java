@@ -1,4 +1,4 @@
-package graph_example;
+package Ex4MainExample;
 import java.util.ArrayList;
 
 import graph.Graph;
