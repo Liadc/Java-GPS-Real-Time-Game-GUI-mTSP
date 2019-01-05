@@ -2,6 +2,8 @@ package Geom;
 
 import Coords.MyCoords;
 
+import java.awt.geom.Rectangle2D;
+
 /**
  * This class represents a 2D rectangle in real-life dimensions.
  * It will use 4 points just for ease of use for the programmer, although we can represent a rectangle with 2 points
@@ -45,7 +47,13 @@ public class GeomRectangle implements Geom_element{
         return (getRightUp().x() >= ptPos.x() && getRightUp().y() >= ptPos.y() &&
                 getLeftDown().x() <= ptPos.x() && getLeftDown().y() <= ptPos.y());
     }
-    //TODO: add function: gets a line (2 points) and returns boolean if it intersects with the rectangle.
+
+
+    //TODO: create test for this function: gets a line (2 points) and returns boolean if it intersects with the rectangle.
+    public boolean segmentIntersects(Point3D p1, Point3D p2){
+        Rectangle2D rct2D = new Rectangle2D.Double( getLeftUp().x() , getLeftUp().y() , getHeight() , getWidth() );
+        return rct2D.intersectsLine( p1.x() , p1.y() , p2.x() , p2.y() );
+    }
 
 
 
