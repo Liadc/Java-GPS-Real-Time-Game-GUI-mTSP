@@ -13,7 +13,8 @@ public class GIS_element_obj implements GIS_element {
     private Geom_element geom;
     private Meta_data metaData;
     private int ID;
-    private boolean necessary=false;
+    private boolean necessary = false;
+    private boolean isEaten = false;
 
 
     /**
@@ -98,5 +99,13 @@ public class GIS_element_obj implements GIS_element {
 
     public void setNecessary(boolean necessary) {
         this.necessary = necessary;
+    }
+
+    public boolean isEaten() {
+        return isEaten;
+    }
+
+    public void setEaten(boolean eaten) {
+        isEaten = eaten;
     }
 }
