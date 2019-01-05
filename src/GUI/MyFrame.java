@@ -5,6 +5,8 @@ import Algorithms.Solution;
 import Coords.Cords;
 import Coords.MyCoords;
 import File_format.Path2KML;
+import GIS.GIS_element;
+import GIS.GIS_layer;
 import Game.Fruit;
 import Game.Game;
 import Game.Map;
@@ -35,10 +37,10 @@ import java.util.Iterator;
 public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
     private Image image; //game background image.
-    private Game game; //game object to work with.
+    public static Game game; //game object to work with.
     private int typeToAdd = 1; //1 for player
     private Map map; //map object according to provided image.
-    private static MyFrame ourJFrame;
+    public static MyFrame ourJFrame;
     private Painter paintThread;
     public static Play play;
 
@@ -247,7 +249,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 File file = new File(String.valueOf(chooser.getSelectedFile()));
                 String file_name = file.getAbsolutePath();
                 ourJFrame.play = new Play(file_name);
-                ourJFrame.play.setIDs(316602630,311508220);
+                ourJFrame.play.setIDs(321,123);
                 ourJFrame.game = new Game(ourJFrame.play.getBoard());
 
                 System.out.println(chooser.getSelectedFile());
@@ -331,6 +333,10 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             ourJFrame.play.setInitLocation(globalPoint.y(),globalPoint.x());
             repaint();
             ourJFrame.play.start();
+            //todo: delete these lines ->>
+            Player player = (Player)ourJFrame.game.getPlayer();
+            player.addTargetsList(game.getFruits());
+            player.moveToAllTargets();
             typeToAdd=2;
         }
         else if(typeToAdd == 2 && ourJFrame.game.hasPlayer()){
