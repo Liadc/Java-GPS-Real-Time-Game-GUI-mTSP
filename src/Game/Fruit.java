@@ -16,7 +16,6 @@ public class Fruit extends GIS_element_obj{
     Geom_element, Meta_data (name, color, type, utcTime).
      */
     private double weight; //fruit weight.
-    private boolean isEaten;
     private int ID;
     private long timeToEat = 0;
 
@@ -30,7 +29,6 @@ public class Fruit extends GIS_element_obj{
     public Fruit(Geom_element geometryOfElement, Meta_data_element dataOfElement,int ID) {
         super(geometryOfElement, dataOfElement, ID);
         this.weight = 1;
-        this.isEaten = false;
         this.ID = ID;
     }
     /**
@@ -69,14 +67,6 @@ public class Fruit extends GIS_element_obj{
 
     public void setWeight(double weight) {
         this.weight = weight;
-    }
-
-    public boolean isEaten() {
-        return isEaten;
-    }
-
-    public void setEaten(boolean eaten) {
-        isEaten = eaten;
     }
 
     public void setTimeToEat(long timeToEat) {
