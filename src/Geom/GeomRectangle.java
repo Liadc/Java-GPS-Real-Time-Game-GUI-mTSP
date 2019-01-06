@@ -31,7 +31,14 @@ public class GeomRectangle implements Geom_element{
      * @return width of the rectangle in Double.
      */
     public double getWidth(){
-        return coords.distance3d(leftUp, rightUp);
+        leftUp.transformXY();
+        rightUp.transformXY();
+        double dist = coords.distance3d(leftUp, rightUp);
+        leftUp.transformXY();
+        rightUp.transformXY();
+        System.out.println("Width: "+dist); //todo: delete this
+
+        return dist;
     }
 
     /**
@@ -39,7 +46,13 @@ public class GeomRectangle implements Geom_element{
      * @return height of the rectangle in Double.
      */
     public double getHeight(){
-        return coords.distance3d(leftUp, leftDown);
+        leftUp.transformXY();
+        leftDown.transformXY();
+        double dist = coords.distance3d(leftUp, leftDown);
+        leftUp.transformXY();
+        leftDown.transformXY();
+        System.out.println("Height: "+dist); //todo: delete this
+        return dist;
     }
 
     //TODO: create tests for this.
@@ -51,7 +64,7 @@ public class GeomRectangle implements Geom_element{
 
     //TODO: create test for this function: gets a line (2 points) and returns boolean if it intersects with the rectangle.
     public boolean segmentIntersects(Point3D p1, Point3D p2){
-        Rectangle2D rct2D = new Rectangle2D.Double( getLeftUp().x() , getLeftUp().y() , getHeight() , getWidth() );
+        Rectangle2D rct2D = new Rectangle2D.Double( getLeftUp().x() , getLeftUp().y() , getWidth() , getHeight() );
         return rct2D.intersectsLine( p1.x() , p1.y() , p2.x() , p2.y() );
     }
 
