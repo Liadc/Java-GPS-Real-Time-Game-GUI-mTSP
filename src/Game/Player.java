@@ -91,7 +91,7 @@ public class Player extends GIS_element_obj {
         //otherwise
         while (MyFrame.play.isRuning() && distancePointFromEatRadius((Point3D) target.getGeom()) != 0 && !target.isEaten()){
             MyFrame.play.rotate(getAngleToTarget(target));
-            MyFrame.game.updateGame(MyFrame.play.getBoard());
+            MyFrame.ourJFrame.game.updateGame(MyFrame.play.getBoard());
             MyFrame.ourJFrame.paintImmediately(0,0,MyFrame.ourJFrame.getWidth(),MyFrame.ourJFrame.getHeight());
             try {
                 Thread.sleep(33); //30 FPS
