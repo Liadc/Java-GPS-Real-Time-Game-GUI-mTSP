@@ -1,7 +1,9 @@
 package Geom;
 
 import Coords.MyCoords;
+import Game.Map;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -31,14 +33,14 @@ public class GeomRectangle implements Geom_element{
      * @return width of the rectangle in Double.
      */
     public double getWidth(){
-        leftUp.transformXY();
-        rightUp.transformXY();
-        double dist = coords.distance3d(leftUp, rightUp);
-        leftUp.transformXY();
-        rightUp.transformXY();
-        System.out.println("Width: "+dist); //todo: delete this
+//        leftUp.transformXY();
+//        rightUp.transformXY();
+//        double dist = coords.distance3d(leftUp, rightUp);
+//        leftUp.transformXY();
+//        rightUp.transformXY();
+//        System.out.println("Width: "+dist); //todo: delete this
 
-        return dist;
+        return Math.abs(rightUp.x()-leftUp.x());
     }
 
     /**
@@ -46,13 +48,10 @@ public class GeomRectangle implements Geom_element{
      * @return height of the rectangle in Double.
      */
     public double getHeight(){
-        leftUp.transformXY();
-        leftDown.transformXY();
-        double dist = coords.distance3d(leftUp, leftDown);
-        leftUp.transformXY();
-        leftDown.transformXY();
-        System.out.println("Height: "+dist); //todo: delete this
-        return dist;
+
+//        double dist = coords.distance3d(leftUp, leftDown);
+        System.out.println(leftUp.y()-rightDown.y());
+        return  Math.abs(leftUp.y()-rightDown.y());
     }
 
     //TODO: create tests for this.
@@ -64,8 +63,9 @@ public class GeomRectangle implements Geom_element{
 
     //TODO: create test for this function: gets a line (2 points) and returns boolean if it intersects with the rectangle.
     public boolean segmentIntersects(Point3D p1, Point3D p2){
-        Rectangle2D rct2D = new Rectangle2D.Double( getLeftUp().x() , getLeftUp().y() , getWidth() , getHeight() );
-        return rct2D.intersectsLine( p1.x() , p1.y() , p2.x() , p2.y() );
+        Rectangle2D.Double rct2D = new Rectangle2D.Double( getLeftUp().y() , getLeftUp().x() , getWidth() , getHeight() );
+        Line2D.Double line2d = new Line2D.Double(p1.y(), p1.x(), p2.y(), p2.x());
+        return rct2D.intersectsLine(line2d);
     }
 
 

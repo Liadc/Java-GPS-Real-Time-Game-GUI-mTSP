@@ -254,13 +254,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             }else{
                 System.out.println("No file selected.");
             }
-            if(play!=null) {
-                System.out.println(play.getStatistics());
-                ArrayList<String> board_data = play.getBoard();
-                for (int i = 0; i < board_data.size(); i++) {
-                    System.out.println(board_data.get(i));
-                }
-            }
             ourJFrame.repaint();
         });
 
@@ -312,26 +305,66 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         ArrayList<GIS_element> targets = new ArrayList<>(ourJFrame.game.getFruits()); //random each run. we init from a SET. order not guaranteed.
         Player player = new Player();
         Point3D playerPos = (Point3D)targets.get(0).getGeom();
+        ourJFrame.game.initCorners();
         player.setGeom(playerPos); //place player on the first target. (fruit).
         ourJFrame.game.addPlayer(player);
         ourJFrame.repaint();
 
         //server simulations: targets order are randomized and are simulated for many times. we hold the best score.
         play.setInitLocation(playerPos.y(),playerPos.x());
-        play.start();
+//        System.out.println();
         ourJFrame.game.updateGame(play.getBoard());
+        System.out.println("Player position: " + ourJFrame.game.getPlayer().getGeom()); //todo: delete
         System.out.println("*********** !! Game Started !! ***********");
+        play.start();
+
         player.addTargetsList(targets); //add all fruits as targets for the player.
+
+        //optional: todo: delete these 3 lines. new logic required.
         String sourceName = "" + targets.get(0).getData().getType() + targets.get(0).getID();
         String targetName = "" + targets.get(1).getData().getType() + targets.get(1).getID();
         System.out.println("Best route from (" +sourceName+ ") to target named: " + targetName+" is: ");
-        //calc shortest path to next target, obstacles avoided:
-        System.out.println("Obstacles: "+ourJFrame.game.getObstacles()); //todo: finish this.
-        System.out.println("Fruits: "+ourJFrame.game.getFruits());
-        Graph g = PathsAvoidObstacles.initGraph(ourJFrame.game.getFruits(), ourJFrame.game.getObstacles(), ourJFrame.game);
-        System.out.println(pathToTargetInclObstacles(g, sourceName, targetName));
-//        player.moveToAllTargets();
 
+        //calc shortest path to next target, obstacles avoided:
+        Graph g = PathsAvoidObstacles.initGraph(ourJFrame.game.getFruits(), ourJFrame.game.getObstacles(), ourJFrame.game,map,getHeight(),getWidth());
+        ArrayList<String> pathStringToTarget = pathToTargetInclObstacles(g, sourceName, targetName);
+        ArrayList<GIS_element> realPath = parseNameList(pathStringToTarget);
+        Iterator<GIS_element> pathIt = realPath.iterator();
+        while(pathIt.hasNext()){
+            player.moveToEatTarget(pathIt.next());
+        }
+        System.out.println("Finished RunAlgo");//todo: delete
+    }
+
+    private ArrayList<GIS_element> parseNameList(ArrayList<String> pathToTarget) {
+        ArrayList<GIS_element> realTargets = new ArrayList<>();
+        for(int i=0;i<pathToTarget.size();i++){
+            String elemStr = pathToTarget.get(i);
+            if (elemStr.contains("F")) { //fruit.
+                int ID = Integer.parseInt(elemStr.substring(1));
+                for(GIS_element realFruit : ourJFrame.game.getFruits()){
+                    if (ID == realFruit.getID()) {
+                        realTargets.add(realFruit);
+                    }
+                }
+            } else if (elemStr.contains("P")) { //pacman.
+                int ID = Integer.parseInt(elemStr.substring(1));
+                for(GIS_element realPac : ourJFrame.game.getPacmen()){
+                    if (ID == realPac.getID()) {
+                        realTargets.add(realPac);
+                    }
+                }
+            } else if (elemStr.contains("OC")) { //Obstacle Corner.
+                int ID = Integer.parseInt(elemStr.substring(2));
+                for(GIS_element realCorner : ourJFrame.game.getObstacleCorners()){
+                    if (ID == realCorner.getID()) {
+                        System.out.println("the position of obstacle corner in Game: " + realCorner.getGeom());//todo: delete
+                        realTargets.add(realCorner);
+                    }
+                }
+            }
+        }
+        return realTargets;
     }
 
     private void printBoardAndStats(){
@@ -350,9 +383,9 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                     "We will stop the animation now.");
         }
         if (typeToAdd == 1 && play != null && !ourJFrame.game.hasPlayer()) {
-            System.out.println("Adding player");
             Point3D pointPixel = new Point3D(e.getX(), e.getY(), 0);
             Point3D globalPoint = map.PixelsToCoords(pointPixel, getHeight(), getWidth());
+            System.out.println("Adding player at: " + globalPoint);
             //TODO: Check if inBound BOX
             ourJFrame.game.addPlayer(globalPoint);
             //todo: if there is no game selected but pacman is clicked to add, throw exception with message to screen.
@@ -361,7 +394,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             play.start();
             typeToAdd=2;
         }
-        else if(typeToAdd == 2 && ourJFrame.game.hasPlayer()){
+        else if(ourJFrame.game.hasPlayer()){
             Point3D pos = (Point3D) ourJFrame.game.getPlayer().getGeom();
             pos.transformXY();
             MyCoords coords = new MyCoords();

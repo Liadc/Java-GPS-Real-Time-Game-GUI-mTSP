@@ -5,6 +5,7 @@ import GIS.GIS_element;
 import GIS.GIS_layer;
 import GIS.GIS_layer_obj;
 import Game.Game;
+import Game.Map;
 import Game.Obstacle;
 import Game.ObstacleCorner;
 import Geom.GeomRectangle;
@@ -13,6 +14,8 @@ import graph.Graph;
 import graph.Graph_Algo;
 import graph.Node;
 
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
@@ -28,6 +31,9 @@ public class PathsAvoidObstacles {
      * it returns the set of these objects.
      */
     public static Set createObstacleCorners(Set<GIS_element> obstacles, Game game){
+        if (game.getObstacleCorners() != null) {
+            return game.getObstacleCorners();
+        }
         GIS_layer cornersSet = new GIS_layer_obj();
         MyCoords conv = new MyCoords();
         int cornerID = 0;
@@ -49,6 +55,7 @@ public class PathsAvoidObstacles {
             topLeftPos = conv.add(topLeftPos, vectorToAddEpsilonTL);
             botRightPos = conv.add(botRightPos, vectorToAddEpsilonBR);
             botLeftPos = conv.add(botLeftPos, vectorToAddEpsilonBL);
+            System.out.println("Adding the following:\n"+topRightPos+"\n"+topLeftPos + "\n" + botLeftPos +"\n" + botRightPos+"\nFinished adding to set."); //todo: delete
             ObstacleCorner corner = new ObstacleCorner(topRightPos,cornerID++);
             cornersSet.add(corner);
             corner = new ObstacleCorner(topLeftPos,cornerID++);
@@ -89,7 +96,7 @@ public class PathsAvoidObstacles {
      * @param obstacles GIS_layer, all obstacle objects in one layer.
      * @return Graph, G, an undirected-connected-graph. dijkstra's algorithms hasn't run on this graph yet.
      */
-    public static Graph initGraph(GIS_layer targets, GIS_layer obstacles, Game game){
+    public static Graph initGraph(GIS_layer targets, GIS_layer obstacles, Game game, Map map,double ht,double wd){
         Graph G = new Graph();
 //        String source = "Player Node(Source) First Pos"; //todo: delete this
 //        G.add(new Node(source));
@@ -107,27 +114,35 @@ public class PathsAvoidObstacles {
         //hold all node/vertex objects in one data structure:
         ArrayList<GIS_element> allVertexes = new ArrayList<>(targets);
         allVertexes.addAll(obsCorners);
+        ArrayList<GIS_element> obstaclesAL = new ArrayList<>(obstacles);
         MyCoords coords = new MyCoords(); //used to calc weight on edges.
         //graph is directed/undirected, we will include both edges to make sure.
         for(int i=0; i<allVertexes.size(); i++){
             Point3D posV1 = (Point3D) allVertexes.get(i).getGeom();
+            Point3D v1Pixelated = map.CoordsToPixels(posV1,ht,wd);
             for(int j=0; j<allVertexes.size(); j++){
                 if(i!=j) {
                     Point3D posV2 = (Point3D) allVertexes.get(j).getGeom();
-                    //check LOS between 2 Point3D positions.
+                    Point3D v2Pixelated = map.CoordsToPixels(posV2,ht,wd);
+                    Line2D.Double lineRep = new Line2D.Double(v1Pixelated.x(), v1Pixelated.y(), v2Pixelated.x(), v2Pixelated.y());
                     boolean intersects = false;
-                    for(GIS_element obs : obstacles){
-//                        GIS_element obs = obsIt.next();
+                    for(GIS_element obs : obstaclesAL){
                         GeomRectangle obsGeom = (GeomRectangle)obs.getGeom();
-                        if (obsGeom.segmentIntersects(posV1, posV2)) {
+                        Point3D topLeftObs = obsGeom.getLeftUp();
+                        Point3D downRightObs = obsGeom.getRightDown();
+                        Point3D tlPixelated = map.CoordsToPixels(topLeftObs,ht,wd);
+                        Point3D drPixelated = map.CoordsToPixels(downRightObs,ht,wd);
+                        Rectangle2D.Double rect = new Rectangle2D.Double(tlPixelated.x(), tlPixelated.y(), Math.abs(drPixelated.x()-tlPixelated.x()), Math.abs(drPixelated.y()-tlPixelated.y()));
+                        if (lineRep.intersects(rect)) {
                             intersects = true;
+                            break;
                         }
                     }
                     if(!intersects) {
                         String firstNode = "" + allVertexes.get(i).getData().getType() + allVertexes.get(i).getID();
                         String secondNode = "" + allVertexes.get(j).getData().getType() + allVertexes.get(j).getID();
                         Double edgeWeight = coords.distance3d(posV1, posV2);
-                        System.out.println("Added edge between " + firstNode + " to " + secondNode + " with weight: " + edgeWeight); //todo: delete this. fix function.
+//                        System.out.println("Added edge between " + firstNode + " to " + secondNode + " with weight: " + edgeWeight); //todo: delete this. fix function.
                         G.addEdge(firstNode, secondNode, edgeWeight);
                     }
                 }
@@ -153,16 +168,12 @@ public class PathsAvoidObstacles {
      * it calculates and returns the shortest path to the given target while avoiding collision with obstacles.
      */
     public static ArrayList<String> pathToTargetInclObstacles(Graph g,String source, String target){
-
-        //name parsing for working with graph strings.
-//        String sourceName = "" + source.getData().getType() + source.getID();
-//        String targetName = "" + target.getData().getType() + target.getID();
         Graph_Algo.dijkstra(g, source);
-
         Node b = g.getNodeByName(target);
         ArrayList<String> shortestPath = b.getPath();
+        shortestPath.add(target);
+        System.out.println("shortest path from PathsAvoidObstacle class: "+shortestPath);//todo: delete
         return shortestPath;
-//        System.out.println(shortestPath);
 //
 //        ArrayList<GIS_element> path = null;
 ////        Point3D targetPos = (Point3D)target.getGeom();
