@@ -2,14 +2,15 @@ package Algorithms;
 
 import Coords.MyCoords;
 import GIS.GIS_element;
-import GIS.GIS_element_obj;
 import GIS.GIS_layer;
 import GIS.GIS_layer_obj;
+import Game.Game;
 import Game.Obstacle;
 import Game.ObstacleCorner;
 import Geom.GeomRectangle;
 import Geom.Point3D;
 import graph.Graph;
+import graph.Graph_Algo;
 import graph.Node;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class PathsAvoidObstacles {
      * of the obstacles, as long as the position is outside of any other obstacles. (no overlapping).
      * it returns the set of these objects.
      */
-    public Set createObstacleCorners(Set<GIS_element> obstacles){
+    public static Set createObstacleCorners(Set<GIS_element> obstacles, Game game){
         GIS_layer cornersSet = new GIS_layer_obj();
         MyCoords conv = new MyCoords();
         int cornerID = 0;
@@ -40,10 +41,10 @@ public class PathsAvoidObstacles {
             Point3D topRightPos = rectObs.getRightUp();
             Point3D botLeftPos = rectObs.getLeftDown();
             Point3D botRightPos = rectObs.getRightDown();
-            Point3D vectorToAddEpsilonTR = new Point3D(1, 1, 0); //and all variants.
-            Point3D vectorToAddEpsilonTL = new Point3D(-1, 1, 0); //and all variants.
-            Point3D vectorToAddEpsilonBR = new Point3D(1, -1, 0); //and all variants.
-            Point3D vectorToAddEpsilonBL = new Point3D(-1, -1, 0); //and all variants.
+            Point3D vectorToAddEpsilonTR = new Point3D(2, 2, 0); //and all variants.
+            Point3D vectorToAddEpsilonTL = new Point3D(-2, 2, 0); //and all variants.
+            Point3D vectorToAddEpsilonBR = new Point3D(2, -2, 0); //and all variants.
+            Point3D vectorToAddEpsilonBL = new Point3D(-2, -2, 0); //and all variants.
             topRightPos = conv.add(topRightPos, vectorToAddEpsilonTR);
             topLeftPos = conv.add(topLeftPos, vectorToAddEpsilonTL);
             botRightPos = conv.add(botRightPos, vectorToAddEpsilonBR);
@@ -73,6 +74,7 @@ public class PathsAvoidObstacles {
                 }
             }
         }
+        game.setObstacleCorners(cornersSet);
         return cornersSet;
     }
 
@@ -83,22 +85,21 @@ public class PathsAvoidObstacles {
      * the method will check between each pair of vertexes if there is LOS (line of sight, if they can 'see' each other with no
      * obstacles between). if there is LOS, it will calculate edge weight between these vertex and add it as an edge to the graph.
      * The method returns the Graph as and UNDIRECTED CONNECTED GRAPH. note: Dijkstra's algorithm has not run on this graph yet.
-     * @param player GIS_element, the player object, will be used as the Source vertex in the graph.
      * @param targets GIS_layer, all targets/vertex to be used in the graph. fruits+packmen inside ONE layer is SUPPORTED!
      * @param obstacles GIS_layer, all obstacle objects in one layer.
      * @return Graph, G, an undirected-connected-graph. dijkstra's algorithms hasn't run on this graph yet.
      */
-    public Graph initGraph(GIS_element player, GIS_layer targets, GIS_layer obstacles){
+    public static Graph initGraph(GIS_layer targets, GIS_layer obstacles, Game game){
         Graph G = new Graph();
-        String source = "Player Node(Source)";
-        G.add(new Node(source));
+//        String source = "Player Node(Source) First Pos"; //todo: delete this
+//        G.add(new Node(source));
 
         //adding vertex nodes to our graph.
         Iterator<GIS_element> targetIt = targets.iterator();
         addVertex(G, targetIt);
 
         //adding corners of obstacles as vertexes.
-        GIS_layer obsCorners = (GIS_layer)createObstacleCorners(obstacles);
+        GIS_layer obsCorners = (GIS_layer)createObstacleCorners(obstacles,game);
         Iterator<GIS_element> cornersIt = obsCorners.iterator();
         addVertex(G, cornersIt);
 
@@ -109,21 +110,25 @@ public class PathsAvoidObstacles {
         MyCoords coords = new MyCoords(); //used to calc weight on edges.
         //graph is directed/undirected, we will include both edges to make sure.
         for(int i=0; i<allVertexes.size(); i++){
+            Point3D posV1 = (Point3D) allVertexes.get(i).getGeom();
             for(int j=0; j<allVertexes.size(); j++){
                 if(i!=j) {
-                    Point3D posV1 = (Point3D) allVertexes.get(i).getGeom();
                     Point3D posV2 = (Point3D) allVertexes.get(j).getGeom();
                     //check LOS between 2 Point3D positions.
-                    Iterator<GIS_element> obsIt = obstacles.iterator();
-                    while(obsIt.hasNext()){
-                        GIS_element obs = obsIt.next();
+                    boolean intersects = false;
+                    for(GIS_element obs : obstacles){
+//                        GIS_element obs = obsIt.next();
                         GeomRectangle obsGeom = (GeomRectangle)obs.getGeom();
-                        if (!obsGeom.segmentIntersects(posV1, posV2)) {
-                            String firstNode = ""+allVertexes.get(i).getData().getType()+allVertexes.get(i).getID();
-                            String secondNode = ""+allVertexes.get(j).getData().getType()+allVertexes.get(j).getID();
-                            Double edgeWeight = coords.distance3d(posV1, posV2);
-                            G.addEdge(firstNode,secondNode,edgeWeight);
+                        if (obsGeom.segmentIntersects(posV1, posV2)) {
+                            intersects = true;
                         }
+                    }
+                    if(!intersects) {
+                        String firstNode = "" + allVertexes.get(i).getData().getType() + allVertexes.get(i).getID();
+                        String secondNode = "" + allVertexes.get(j).getData().getType() + allVertexes.get(j).getID();
+                        Double edgeWeight = coords.distance3d(posV1, posV2);
+                        System.out.println("Added edge between " + firstNode + " to " + secondNode + " with weight: " + edgeWeight); //todo: delete this. fix function.
+                        G.addEdge(firstNode, secondNode, edgeWeight);
                     }
                 }
             }
@@ -131,7 +136,7 @@ public class PathsAvoidObstacles {
         return G;
     }
 
-    private void addVertex(Graph g, Iterator<GIS_element> targetIt) {
+    private static void addVertex(Graph g, Iterator<GIS_element> targetIt) {
         while(targetIt.hasNext()){
             GIS_element elem = targetIt.next();
             String nodeName = "" + elem.getData().getType() + elem.getID(); //i.e: name for node of Fruit object with ID 6 =>  F6.
@@ -142,17 +147,28 @@ public class PathsAvoidObstacles {
     }
 
 
+
     /**
-     * This method gets a source point and a given target Point3D position.
+     * This method gets a source GIS_element and a given target GIS_element object.
      * it calculates and returns the shortest path to the given target while avoiding collision with obstacles.
      */
-    public ArrayList<GIS_element> pathToTargetInclObstacles(GIS_element_obj target){
-        ArrayList<GIS_element> path = null;
-        Point3D targetPos = (Point3D)target.getGeom();
+    public static ArrayList<String> pathToTargetInclObstacles(Graph g,String source, String target){
 
-        //TODO: implement this function
+        //name parsing for working with graph strings.
+//        String sourceName = "" + source.getData().getType() + source.getID();
+//        String targetName = "" + target.getData().getType() + target.getID();
+        Graph_Algo.dijkstra(g, source);
 
-        return path;
+        Node b = g.getNodeByName(target);
+        ArrayList<String> shortestPath = b.getPath();
+        return shortestPath;
+//        System.out.println(shortestPath);
+//
+//        ArrayList<GIS_element> path = null;
+////        Point3D targetPos = (Point3D)target.getGeom();
+//        //TODO: implement this function
+//
+//        return path;
     }
 
 

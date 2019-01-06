@@ -16,7 +16,6 @@ public class Fruit extends GIS_element_obj{
     Geom_element, Meta_data (name, color, type, utcTime).
      */
     private double weight; //fruit weight.
-    private int ID;
     private long timeToEat = 0;
 
     /**
@@ -29,7 +28,6 @@ public class Fruit extends GIS_element_obj{
     public Fruit(Geom_element geometryOfElement, Meta_data_element dataOfElement,int ID) {
         super(geometryOfElement, dataOfElement, ID);
         this.weight = 1;
-        this.ID = ID;
     }
     /**
      * Constructor for the Fruit object. gets a Geom_element, Meta_data_element, ID and weight.
@@ -42,8 +40,6 @@ public class Fruit extends GIS_element_obj{
     public Fruit(Geom_element geometryOfElement, Meta_data_element dataOfElement, int ID, double weight) {
         super(geometryOfElement, dataOfElement,ID);
         this.weight = weight;
-        this.ID = ID;
-
     }
     public Fruit(String line) {
         super();
@@ -59,6 +55,7 @@ public class Fruit extends GIS_element_obj{
         } catch (NumberFormatException e) {
             throw new RuntimeException("Exception creating new Fruit, " + e.getMessage());
         }
+        System.out.println("Added fruit. ID: " + this.getID()); //todo: delete this.
     }
     /*** Getters and Setters ***/
     public double getWeight() {
@@ -83,7 +80,7 @@ public class Fruit extends GIS_element_obj{
      */
     @Override
     public String toString() {
-        return "Fruit{"+this.ID+"}";
+        return "Fruit{"+getID()+"}";
     }
     public void updateGeom(String firstBoardLine) {
         String[] arg = firstBoardLine.split(",");
