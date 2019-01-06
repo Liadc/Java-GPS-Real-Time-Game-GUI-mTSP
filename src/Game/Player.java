@@ -84,22 +84,26 @@ public class Player extends GIS_element_obj {
      * @param target gis_element_obj, such as a fruit or packmen, etc.
      */
     public void moveToEatTarget(GIS_element target) {
-        Point3D currentPos = (Point3D) this.getGeom();
+        Point3D currentPos = (Point3D) this.getGeom(); //todo: delete
         Point3D targetPos = (Point3D) target.getGeom();
         //check if distance is less than eating radius, if so, return. if target is no longer available in map (already eaten), return.
         if(distancePointFromEatRadius((Point3D) target.getGeom()) == 0 ) return;
         //otherwise
-        while (MyFrame.play.isRuning() && distancePointFromEatRadius((Point3D) target.getGeom()) != 0 && !target.isEaten()){
+        while (MyFrame.play.isRuning() && distancePointFromEatRadius(targetPos) != 0 && !target.isEaten()){
+            System.out.println("Target position" +targetPos);//todo: delete
             MyFrame.play.rotate(getAngleToTarget(target));
             MyFrame.ourJFrame.game.updateGame(MyFrame.play.getBoard());
             MyFrame.ourJFrame.paintImmediately(0,0,MyFrame.ourJFrame.getWidth(),MyFrame.ourJFrame.getHeight());
             try {
-                Thread.sleep(33); //30 FPS
+                Thread.sleep(100); //33=>30 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        target.setEaten(true);
+        System.out.println("Finished while in MoveTarget"); //todo: delete
+        if(target instanceof Fruit || target instanceof Packman){
+            target.setEaten(true);
+        }
     }
 
     /**
@@ -139,6 +143,10 @@ public class Player extends GIS_element_obj {
 
     public void addTarget(GIS_element target){
         this.targetsOrder.add(target);
+    }
+
+    public void setTargetsOrder(ArrayList<GIS_element> targets){
+        this.targetsOrder = targets;
     }
 
     public void addTargetsList(ArrayList<GIS_element> targets){
