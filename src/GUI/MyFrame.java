@@ -1,12 +1,8 @@
 package GUI;
 
-//import Algorithms.ShortestPathAlgo;
-import Algorithms.Solution;
-import Coords.Cords;
+import Algorithms.PathsAvoidObstacles;
 import Coords.MyCoords;
-import File_format.Path2KML;
 import GIS.GIS_element;
-import GIS.GIS_layer;
 import Game.Fruit;
 import Game.Game;
 import Game.Map;
@@ -15,10 +11,10 @@ import Game.Obstacle;
 import Game.ObstacleCorner;
 import Game.Player;
 import Game.Packman;
-import Geom.Path;
 import Geom.GeomRectangle;
 import Geom.Point3D;
 import Robot.Play;
+import graph.Graph;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -31,13 +27,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import static Algorithms.PathsAvoidObstacles.pathToTargetInclObstacles;
+
 /**
  * some of the code is taken from: https://javatutorial.net/display-text-and-graphics-java-jframe
  */
 public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
     private Image image; //game background image.
-    public static Game game; //game object to work with.
+    public Game game; //game object to work with.
     private int typeToAdd = 1; //1 for player
     private Map map; //map object according to provided image.
     public static MyFrame ourJFrame;
@@ -46,7 +44,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
 
     public MyFrame() {
-        this.game = new Game();
+        game = new Game();
         Point3D topLeft = new Point3D(35.20236,32.10572); //TODO: Change this hardCoded to Game Bounded (ourJframe.play.getBoundingBox();)
         Point3D downRight = new Point3D(35.21235,32.10194);
         this.map = new Map(new File("Resources/GameMaps/Ariel1.png"),topLeft,downRight);
@@ -73,13 +71,13 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         g.drawImage(image, 0, 0, w, h, this);
 
 
-        Iterator PacIterator = game.getPacmen().iterator();
-        Iterator FruitIterator = game.getFruits().iterator();
-        Iterator GhostIterator = game.getGhosts().iterator();
-        Iterator ObstacleIterator = game.getObstacles().iterator();
+        Iterator PacIterator = ourJFrame.game.getPacmen().iterator();
+        Iterator FruitIterator = ourJFrame.game.getFruits().iterator();
+        Iterator GhostIterator = ourJFrame.game.getGhosts().iterator();
+        Iterator ObstacleIterator = ourJFrame.game.getObstacles().iterator();
         Iterator cornersIterator = null;
-        if(game.getObstacleCorners() != null)
-            cornersIterator = game.getObstacleCorners().iterator();
+        if(ourJFrame.game.getObstacleCorners() != null)
+            cornersIterator = ourJFrame.game.getObstacleCorners().iterator();
 
 
         while (PacIterator.hasNext()) {
@@ -163,7 +161,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             }
             g.setColor(Color.CYAN);
             g.fillOval((int) pixel.x()-5, (int) pixel.y()-5, 10, 10);
-//            g.drawString("ID:"+fruit.getID(),(int)pixel.x()-5,(int)pixel.y()-5);
+            g.drawString("ID:"+corner.getID(),(int)pixel.x()-5,(int)pixel.y()-5);
         }
 
 
@@ -183,7 +181,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
     }
 
     private void resetGame() {
-        this.game = new Game();
+        game = new Game();
         if(ourJFrame.paintThread != null){
             ourJFrame.paintThread.stopAnimKillThread();
         }
@@ -248,17 +246,17 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             if(returnValue == JFileChooser.APPROVE_OPTION){
                 File file = new File(String.valueOf(chooser.getSelectedFile()));
                 String file_name = file.getAbsolutePath();
-                ourJFrame.play = new Play(file_name);
-                ourJFrame.play.setIDs(321,123);
-                ourJFrame.game = new Game(ourJFrame.play.getBoard());
+                play = new Play(file_name);
+                play.setIDs(321,123);
+                ourJFrame.game = new Game(play.getBoard());
 
                 System.out.println(chooser.getSelectedFile());
             }else{
                 System.out.println("No file selected.");
             }
-            if(ourJFrame.play!=null) {
-                System.out.println(ourJFrame.play.getStatistics());
-                ArrayList<String> board_data = ourJFrame.play.getBoard();
+            if(play!=null) {
+                System.out.println(play.getStatistics());
+                ArrayList<String> board_data = play.getBoard();
                 for (int i = 0; i < board_data.size(); i++) {
                     System.out.println(board_data.get(i));
                 }
@@ -270,12 +268,12 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         run.addActionListener(l->{ if(ourJFrame.paintThread != null && ourJFrame.paintThread.isKeepGoing()){ /*if we have a thread painting in the background, we will stop the animation and kill the thread.*/
             ourJFrame.paintThread.stopAnimKillThread();
         }
-            try {
+//            try { //todo: uncomment this.
                 ourJFrame.runAlgo();
-            }catch (RuntimeException e){
-                JOptionPane.showMessageDialog(null, e.getMessage());
-
-            }
+//            }catch (RuntimeException e){
+//                JOptionPane.showMessageDialog(null, e.getMessage());
+//
+//            }
         });
 
         corners.addActionListener(e->{
@@ -299,21 +297,49 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
      * if the timeToComplete is lower then the lowest time we got untill now, we will save the new Solution and the new BestTime.
      */
     private void runAlgo() {
-        if(this.game.getPacmen().size() == 0){
-            throw new RuntimeException("No pacmen to calculate solution.");
-        } else if(this.game.getFruits().size() == 0){
+        if (ourJFrame.game == null || ourJFrame.game.getFruits() == null) {
+            showMessageToScreen("Game is not initiated or fruits are not initiated. \nLoad a new game and press again.");
+        }
+        if(play.isRuning()){
+            showMessageToScreen("Already running manual play. \nReset your game and Run Algorithm without placing the player.");
+            return;
+        }
+        if(ourJFrame.game.getFruits().size() == 0){
             throw new RuntimeException("No fruits to calculate solution.");
         }
         //TODO: implement method for algorithm to run. Question 4.
-        throw new RuntimeException("Not yet implemented.");
+        //todo: work these lines ->>
+        ArrayList<GIS_element> targets = new ArrayList<>(ourJFrame.game.getFruits()); //random each run. we init from a SET. order not guaranteed.
+        Player player = new Player();
+        Point3D playerPos = (Point3D)targets.get(0).getGeom();
+        player.setGeom(playerPos); //place player on the first target. (fruit).
+        ourJFrame.game.addPlayer(player);
+        ourJFrame.repaint();
+
+        //server simulations: targets order are randomized and are simulated for many times. we hold the best score.
+        play.setInitLocation(playerPos.y(),playerPos.x());
+        play.start();
+        ourJFrame.game.updateGame(play.getBoard());
+        System.out.println("*********** !! Game Started !! ***********");
+        player.addTargetsList(targets); //add all fruits as targets for the player.
+        String sourceName = "" + targets.get(0).getData().getType() + targets.get(0).getID();
+        String targetName = "" + targets.get(1).getData().getType() + targets.get(1).getID();
+        System.out.println("Best route from (" +sourceName+ ") to target named: " + targetName+" is: ");
+        //calc shortest path to next target, obstacles avoided:
+        System.out.println("Obstacles: "+ourJFrame.game.getObstacles()); //todo: finish this.
+        System.out.println("Fruits: "+ourJFrame.game.getFruits());
+        Graph g = PathsAvoidObstacles.initGraph(ourJFrame.game.getFruits(), ourJFrame.game.getObstacles(), ourJFrame.game);
+        System.out.println(pathToTargetInclObstacles(g, sourceName, targetName));
+//        player.moveToAllTargets();
+
     }
 
     private void printBoardAndStats(){
-        ArrayList<String> board_data = ourJFrame.play.getBoard();
+        ArrayList<String> board_data = play.getBoard();
         for(int i=0;i<board_data.size();i++) {
             System.out.println(board_data.get(i));
         }
-        System.out.println(ourJFrame.play.getStatistics());
+        System.out.println(play.getStatistics());
     }
 
     @Override
@@ -323,24 +349,20 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             showMessageToScreen("You clicked to add into the map while animation was running.\n" +
                     "We will stop the animation now.");
         }
-        if (typeToAdd == 1 && ourJFrame.play != null && !ourJFrame.game.hasPlayer()) {
+        if (typeToAdd == 1 && play != null && !ourJFrame.game.hasPlayer()) {
             System.out.println("Adding player");
             Point3D pointPixel = new Point3D(e.getX(), e.getY(), 0);
             Point3D globalPoint = map.PixelsToCoords(pointPixel, getHeight(), getWidth());
             //TODO: Check if inBound BOX
             ourJFrame.game.addPlayer(globalPoint);
             //todo: if there is no game selected but pacman is clicked to add, throw exception with message to screen.
-            ourJFrame.play.setInitLocation(globalPoint.y(),globalPoint.x());
+            play.setInitLocation(globalPoint.y(),globalPoint.x());
             repaint();
-            ourJFrame.play.start();
-            //todo: delete these lines ->>
-            Player player = (Player)ourJFrame.game.getPlayer();
-            player.addTargetsList(game.getFruits());
-            player.moveToAllTargets();
+            play.start();
             typeToAdd=2;
         }
         else if(typeToAdd == 2 && ourJFrame.game.hasPlayer()){
-            Point3D pos = (Point3D)ourJFrame.game.getPlayer().getGeom();
+            Point3D pos = (Point3D) ourJFrame.game.getPlayer().getGeom();
             pos.transformXY();
             MyCoords coords = new MyCoords();
             Point3D clickPoint = new Point3D(e.getX(), e.getY(), 0); //in pixels.
@@ -348,7 +370,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             clickPoint.transformXY();
             double[] azm = coords.azimuth_elevation_dist(pos,clickPoint );
             double angle = azm[0];
-            ourJFrame.play.rotate(angle);
+            play.rotate(angle);
             ourJFrame.game.updateGame(play.getBoard());
             printBoardAndStats();
             System.out.println("Last move was rotate on Angle from player to click pixel: "+angle);
@@ -385,26 +407,26 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         int keyCode = e.getKeyCode();
         switch( keyCode ) {
             case KeyEvent.VK_UP:
-                ourJFrame.play.rotate(0);
-                ourJFrame.game = new Game(play.getBoard());
+                play.rotate(0);
+                ourJFrame.game.updateGame(play.getBoard());
                 printBoardAndStats();
                 ourJFrame.repaint();
                 break;
             case KeyEvent.VK_DOWN:
-                ourJFrame.play.rotate(180);
-                ourJFrame.game = new Game(play.getBoard());
+                play.rotate(180);
+                ourJFrame.game.updateGame(play.getBoard());
                 printBoardAndStats();
                 ourJFrame.repaint();
                 break;
             case KeyEvent.VK_LEFT:
-                ourJFrame.play.rotate(270);
-                ourJFrame.game = new Game(play.getBoard());
+                play.rotate(270);
+                ourJFrame.game.updateGame(play.getBoard());
                 printBoardAndStats();
                 ourJFrame.repaint();
                 break;
             case KeyEvent.VK_RIGHT :
-                ourJFrame.play.rotate(90);
-                ourJFrame.game = new Game(play.getBoard());
+                play.rotate(90);
+                ourJFrame.game.updateGame(play.getBoard());
                 printBoardAndStats();
                 ourJFrame.repaint();
                 break;
