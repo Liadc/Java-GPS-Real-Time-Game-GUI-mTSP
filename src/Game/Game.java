@@ -152,8 +152,11 @@ public class Game {
     }
 
     public void initCorners(){
-        PathsAvoidObstacles obsAvoider = new PathsAvoidObstacles();
-        setObstacleCorners((GIS_layer)(obsAvoider.createObstacleCorners(this.getObstacles())));
+        if(getObstacleCorners() == null)
+            setObstacleCorners((GIS_layer)(PathsAvoidObstacles.createObstacleCorners(this.getObstacles(),this)));
+        else {
+            System.out.println("Already initiated corners.");
+        }
     }
 
 
