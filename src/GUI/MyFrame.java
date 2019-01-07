@@ -318,7 +318,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         play.start();
         player.addTargetsList(targets); //add all fruits as targets for the player. we can add Packmen also, or any object which implements GIS_Element .
         updatePlayerPathToTargets(player); //todo: update.
-        player.moveToAllTargets();
+        player.moveToAllTargets(ourJFrame.game.getGhosts());
 
 
     }
