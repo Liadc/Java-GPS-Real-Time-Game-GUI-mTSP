@@ -3,7 +3,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/Resources/lib/Ex4_v0.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/Resources/lib/mysql-connector-java-5.1.47.jar!/" />
-      <root url="jar://$PROJECT_DIR$/Resources/lib/Graph_v0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Resources/lib/Graph_v0.11.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
