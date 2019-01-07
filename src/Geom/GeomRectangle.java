@@ -1,6 +1,10 @@
 package Geom;
 
 import Coords.MyCoords;
+import Game.Map;
+
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * This class represents a 2D rectangle in real-life dimensions.
@@ -29,7 +33,14 @@ public class GeomRectangle implements Geom_element{
      * @return width of the rectangle in Double.
      */
     public double getWidth(){
-        return coords.distance3d(leftUp, rightUp);
+//        leftUp.transformXY();
+//        rightUp.transformXY();
+//        double dist = coords.distance3d(leftUp, rightUp);
+//        leftUp.transformXY();
+//        rightUp.transformXY();
+//        System.out.println("Width: "+dist); //todo: delete this
+
+        return Math.abs(rightUp.x()-leftUp.x());
     }
 
     /**
@@ -37,15 +48,25 @@ public class GeomRectangle implements Geom_element{
      * @return height of the rectangle in Double.
      */
     public double getHeight(){
-        return coords.distance3d(leftUp, leftDown);
+
+//        double dist = coords.distance3d(leftUp, leftDown);
+        System.out.println(leftUp.y()-rightDown.y());
+        return  Math.abs(leftUp.y()-rightDown.y());
     }
 
-    //TODO: creates tests for this.
+    //TODO: create tests for this.
     public boolean isPointInside(Point3D ptPos){
-        return ptPos.x()>=getLeftUp().x() && ptPos.x() <= getRightUp().x() &&
-                ptPos.y()>=getLeftUp().y() && ptPos.y() <= getLeftDown().y();
+        return (getRightUp().x() >= ptPos.x() && getRightUp().y() >= ptPos.y() &&
+                getLeftDown().x() <= ptPos.x() && getLeftDown().y() <= ptPos.y());
     }
-    //TODO: add function: gets a line (2 points) and returns boolean if it intersects with the rectangle.
+
+
+    //TODO: create test for this function: gets a line (2 points) and returns boolean if it intersects with the rectangle.
+    public boolean segmentIntersects(Point3D p1, Point3D p2){
+        Rectangle2D.Double rct2D = new Rectangle2D.Double( getLeftUp().y() , getLeftUp().x() , getWidth() , getHeight() );
+        Line2D.Double line2d = new Line2D.Double(p1.y(), p1.x(), p2.y(), p2.x());
+        return rct2D.intersectsLine(line2d);
+    }
 
 
 

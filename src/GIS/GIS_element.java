@@ -17,4 +17,11 @@ public interface GIS_element {
     public void translate(Point3D vec);
 
     public int getID();
+
+    boolean isNecessary();
+
+    void setNecessary(boolean necessary);
+
+    public boolean isEaten();
+    public void setEaten(boolean eaten);
 }

@@ -21,7 +21,7 @@ public class Packman extends GIS_element_obj{
     /**
      * Constructor for the Packman object. gets a String and creates a new Packman object.
      * The string is exactly in the form given in Ex4 string so we can parse with related indexes.
-     * @param String the string represents all data required to create a packman.
+     * @param line the string represents all data required to create a packman.
      */
     public Packman(String line) {
         super();
@@ -95,6 +95,12 @@ public class Packman extends GIS_element_obj{
 
     public void setEatRadius(double eatRadius) {
         this.eatRadius = eatRadius;
+    }
+
+    public void updateGeom(String firstBoardLine) {
+        String[] arg = firstBoardLine.split(",");
+        Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
+        setGeom(LatLonAlt);
     }
 
 }
