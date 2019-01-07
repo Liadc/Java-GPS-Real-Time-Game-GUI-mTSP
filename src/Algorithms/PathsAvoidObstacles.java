@@ -47,15 +47,14 @@ public class PathsAvoidObstacles {
             Point3D topRightPos = rectObs.getRightUp();
             Point3D botLeftPos = rectObs.getLeftDown();
             Point3D botRightPos = rectObs.getRightDown();
-            Point3D vectorToAddEpsilonTR = new Point3D(2, 2, 0); //and all variants.
-            Point3D vectorToAddEpsilonTL = new Point3D(-2, 2, 0); //and all variants.
-            Point3D vectorToAddEpsilonBR = new Point3D(2, -2, 0); //and all variants.
-            Point3D vectorToAddEpsilonBL = new Point3D(-2, -2, 0); //and all variants.
+            Point3D vectorToAddEpsilonTR = new Point3D(3, 3, 0); //and all variants.
+            Point3D vectorToAddEpsilonTL = new Point3D(-3, 3, 0); //and all variants.
+            Point3D vectorToAddEpsilonBR = new Point3D(3, -3, 0); //and all variants.
+            Point3D vectorToAddEpsilonBL = new Point3D(-3, -3, 0); //and all variants.
             topRightPos = conv.add(topRightPos, vectorToAddEpsilonTR);
             topLeftPos = conv.add(topLeftPos, vectorToAddEpsilonTL);
             botRightPos = conv.add(botRightPos, vectorToAddEpsilonBR);
             botLeftPos = conv.add(botLeftPos, vectorToAddEpsilonBL);
-            System.out.println("Adding the following:\n"+topRightPos+"\n"+topLeftPos + "\n" + botLeftPos +"\n" + botRightPos+"\nFinished adding to set."); //todo: delete
             ObstacleCorner corner = new ObstacleCorner(topRightPos,cornerID++);
             cornersSet.add(corner);
             corner = new ObstacleCorner(topLeftPos,cornerID++);
@@ -172,7 +171,7 @@ public class PathsAvoidObstacles {
         Node b = g.getNodeByName(target);
         ArrayList<String> shortestPath = b.getPath();
         shortestPath.add(target);
-        System.out.println("shortest path from PathsAvoidObstacle class: "+shortestPath);//todo: delete
+        System.out.println("shortest path: "+shortestPath);//todo: delete
         return shortestPath;
 //
 //        ArrayList<GIS_element> path = null;
