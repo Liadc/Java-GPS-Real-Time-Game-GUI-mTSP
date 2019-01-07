@@ -9,11 +9,16 @@ import graph.Point3D;
  * This main class demonstrate a use of Dijkstra algorithm for finding the shortest path
  * between a source vertex on a graph to all other vertices.
  * The main class is based on the image of p_graph_ex4.png
+ * Note: this version includes a bug fix performed on the 6.1.2019 (v0.11) 
  * @author ben-moshe
  *
  */
 public class Graph_Example {
 	public static void main(String[] a) {
+		test();
+		test();
+	}
+	public static void test() {
 		int size = 16;
 		double[] xx = {38,88,88,356,356,60,60,310,310,120,164,277,422,277,422,238};
 		double[] yy = {131,50,102,50,102,218,254,254,218,275,275,125,125,192,192,191};
