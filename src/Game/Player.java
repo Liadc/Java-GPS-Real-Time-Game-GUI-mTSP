@@ -138,12 +138,13 @@ public class Player extends GIS_element_obj {
         System.out.println("Max danger zone degree: "+ maxDangerZone);//todo: delete
         for(GIS_element ghost : ghosts){
             double angleToGhost = getAngleToTarget(ghost);
-            if (angleToGhost > minDangerZone && angleToGhost < maxDangerZone && distancePointFromEatRadius((Point3D) ghost.getGeom()) < 7) {
-                double angleNormalized = (minDangerZone+maxDangerZone)/2;
-                if(angleToGhost >minDangerZone && angleToGhost<angleToMove)  angleNormalized-=90; else angleNormalized +=90;
-                System.out.println("Angle to Ghost: " + angleToGhost); //todo: delete
+            if (angleToGhost > minDangerZone && angleToGhost < maxDangerZone && distancePointFromEatRadius((Point3D) ghost.getGeom()) < 6) {
+                double angleNormalized = angleToGhost;
+                if(angleToGhost >minDangerZone && angleToGhost<angleToMove)  angleNormalized+=60; else angleNormalized -=60;
+                for(int i =0; i<3; i++) {
+                    System.out.println("Angle to Ghost: " + angleToGhost); //todo: delete
                     System.out.println("Maneuvering to avoid ghost! slow-motion movement!");
-                    System.out.println("Rotating towards angle: " +angleNormalized);
+                    System.out.println("Rotating towards angle: " + angleNormalized);
                     MyFrame.play.rotate(angleNormalized);  //actually moving. towards normalized-vector angle to the ghost.
                     MyFrame.ourJFrame.game.updateGame(MyFrame.play.getBoard());
                     MyFrame.ourJFrame.paintImmediately(0, 0, MyFrame.ourJFrame.getWidth(), MyFrame.ourJFrame.getHeight());
@@ -152,6 +153,7 @@ public class Player extends GIS_element_obj {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                }
             }
         }
 
