@@ -314,26 +314,13 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         play.setInitLocation(playerPos.y(),playerPos.x());
 //        System.out.println();
         ourJFrame.game.updateGame(play.getBoard());
-        System.out.println("Player position: " + ourJFrame.game.getPlayer().getGeom()); //todo: delete
         System.out.println("*********** !! Game Started !! ***********");
         play.start();
+        player.addTargetsList(targets); //add all fruits as targets for the player. we can add Packmen also, or any object which implements GIS_Element .
+        updatePlayerPathToTargets(player); //todo: update.
+        player.moveToAllTargets();
 
-        player.addTargetsList(targets); //add all fruits as targets for the player.
 
-        //optional: todo: delete these 3 lines. new logic required.
-        String sourceName = "" + targets.get(0).getData().getType() + targets.get(0).getID();
-        String targetName = "" + targets.get(1).getData().getType() + targets.get(1).getID();
-        System.out.println("Best route from (" +sourceName+ ") to target named: " + targetName+" is: ");
-
-        //calc shortest path to next target, obstacles avoided:
-        Graph g = PathsAvoidObstacles.initGraph(ourJFrame.game.getFruits(), ourJFrame.game.getObstacles(), ourJFrame.game,map,getHeight(),getWidth());
-        ArrayList<String> pathStringToTarget = pathToTargetInclObstacles(g, sourceName, targetName);
-        ArrayList<GIS_element> realPath = parseNameList(pathStringToTarget);
-        Iterator<GIS_element> pathIt = realPath.iterator();
-        while(pathIt.hasNext()){
-            player.moveToEatTarget(pathIt.next());
-        }
-        System.out.println("Finished RunAlgo");//todo: delete
     }
 
     private ArrayList<GIS_element> parseNameList(ArrayList<String> pathToTarget) {
@@ -358,13 +345,39 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 int ID = Integer.parseInt(elemStr.substring(2));
                 for(GIS_element realCorner : ourJFrame.game.getObstacleCorners()){
                     if (ID == realCorner.getID()) {
-                        System.out.println("the position of obstacle corner in Game: " + realCorner.getGeom());//todo: delete
                         realTargets.add(realCorner);
                     }
                 }
             }
         }
         return realTargets;
+    }
+
+    /**
+     * This method will look for the player targets and checks if the path is legit (i.e - the player can move to each target one by one without collision with obstacles).
+     * If it finds that the next target requires maneuvering an obstacle, it will calculate shortest path to the target while avoiding obstacles using Dijkstra's algorithm in Graph.
+     * it then updates the target list of the player, so the player can move to targets in the order provided without collisions with obstacles.
+     */
+    private void updatePlayerPathToTargets(Player player) {
+        ArrayList<GIS_element> currentTargetsOrder = player.getTargetsOrder();
+        ArrayList<GIS_element> newTargetsOrder = new ArrayList<>();
+        for(int i = 0 ;i<currentTargetsOrder.size()-1; i++){
+            GIS_element fromTarget = currentTargetsOrder.get(i);
+            GIS_element toTarget = currentTargetsOrder.get(i+1);
+            String fromTrName = "" + fromTarget.getData().getType() + fromTarget.getID();
+            String toTrName = "" + toTarget.getData().getType() + toTarget.getID();
+            //calc shortest path with obstacles avoiding using Dijkstra's:
+            System.out.println("Best route from (" +fromTrName+ ") to target named: " + toTrName+" is: "); //todo: delete
+
+            //calc shortest path to next target, obstacles avoided:
+            Graph g = PathsAvoidObstacles.initGraph(ourJFrame.game.getFruits(), ourJFrame.game.getObstacles(), ourJFrame.game,map,getHeight(),getWidth());
+            ArrayList<String> pathStringToTarget = pathToTargetInclObstacles(g, fromTrName, toTrName);
+            ArrayList<GIS_element> realPath = parseNameList(pathStringToTarget); //the gis_element order to move on, in order to get to the target.
+            realPath.remove(0); //first element is the fromTarget, we already hold it since it was the toTarget last iteration. for iteration zero-> player is placed on first target. no need to include.
+            newTargetsOrder.addAll(realPath);
+        }
+        System.out.println("The order of movement for player will be: " + newTargetsOrder);
+        player.setTargetsOrder(newTargetsOrder);
     }
 
     private void printBoardAndStats(){
@@ -403,6 +416,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             clickPoint.transformXY();
             double[] azm = coords.azimuth_elevation_dist(pos,clickPoint );
             double angle = azm[0];
+            pos.transformXY();
             play.rotate(angle);
             ourJFrame.game.updateGame(play.getBoard());
             printBoardAndStats();
