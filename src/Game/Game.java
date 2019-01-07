@@ -72,7 +72,9 @@ public class Game {
     }
 
     public void updatePlayer(String firstBoardLine) {
-        player.updateGeom(firstBoardLine);
+        if(player != null) {
+            player.updateGeom(firstBoardLine);
+        }
     }
 
     public void updateFruit(String firstBoardLine) {
