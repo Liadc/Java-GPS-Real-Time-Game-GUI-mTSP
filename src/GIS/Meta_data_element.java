@@ -2,6 +2,8 @@ package GIS;
 
 import Geom.Point3D;
 
+import java.awt.*;
+
 public class Meta_data_element implements Meta_data{
 
     private String name; //name of the element
@@ -17,8 +19,10 @@ public class Meta_data_element implements Meta_data{
     public Meta_data_element(String name, String type){ //constructor used with only name and type. assigns default color.
         this.name = name;
         if(type.equals("F")) //color for fruit.
-            this.color = "#FF0000"; //default color - white.
-        else //color for everything else. pacman for example.
+            this.color = "#33cc33"; //nice green
+        else if (type.equals("G")) {
+            this.color = "#ff0000"; //red
+        } else //color for everything else. pacman for example.
             this.color = "#f0ff00";
         this.type = type;
         this.UTCtime = System.currentTimeMillis();
