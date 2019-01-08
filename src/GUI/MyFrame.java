@@ -15,6 +15,7 @@ import Geom.GeomRectangle;
 import Geom.Point3D;
 import Robot.Play;
 import graph.Graph;
+import showDB.DatabaseConnectionQueries;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -170,6 +171,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             Point3D pixelPlayer = (Point3D) ourJFrame.game.getPlayer().getGeom();
             pixelPlayer = map.CoordsToPixels(pixelPlayer, getHeight(), getWidth());
             g.setColor(Color.white);
+            g.drawString("Player",(int)pixelPlayer.x()-15,(int)pixelPlayer.y()-10);
             g.fillOval((int) pixelPlayer.x()-6, (int) pixelPlayer.y()-6, 12, 12);
         }
 
@@ -181,6 +183,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
     }
 
     private void resetGame() {
+        typeToAdd = 1;
         game = new Game();
         if(ourJFrame.paintThread != null){
             ourJFrame.paintThread.stopAnimKillThread();
@@ -203,6 +206,28 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         Menu fileMenu = new Menu("File");
         Menu addMenu = new Menu("Add");
         Menu algoMenu = new Menu("Algorithm");
+        Menu dbMenu = new Menu("Database");
+
+        MenuItem compareDb = new MenuItem("Compare Results");
+        dbMenu.add(compareDb);
+        compareDb.addActionListener(e->{
+            String[] choices = { "Ex4_OOP_example1.csv", "Ex4_OOP_example2.csv", "Ex4_OOP_example3.csv",
+                    "Ex4_OOP_example4.csv", "Ex4_OOP_example5.csv", "Ex4_OOP_example6.csv" ,
+                    "Ex4_OOP_example7.csv" , "Ex4_OOP_example8.csv" , "Ex4_OOP_example9.csv"};
+            String input = (String) JOptionPane.showInputDialog(null, "Choose Map to compare results: ",
+                    "Compare results from Database ", JOptionPane.QUESTION_MESSAGE, null,
+                    choices, // Array of choices
+                    choices[0]); // Initial choice
+            System.out.println(input);
+            System.out.println("Now calling DatabaseConnectionQueries function");//todo: delete
+            Double[] avgs = new Double[2];
+            avgs = DatabaseConnectionQueries.getAvgFromDB(input);
+            showMessageToScreen("For the Map: " + input+"\n" +
+                    "Average Points for everyone (excluding us): " + avgs[1]+"\n"+
+                    "Average Points for Liad & Timor: "+ avgs[0] + "\n"+
+                    "Best Score for this map (excluding us): " + avgs[3]+"\n"+
+                    "Best Score for Liad & Timor for this map: "+avgs[2]);
+        });
 
 
         MenuItem player = new MenuItem("Add Player");
@@ -247,7 +272,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 File file = new File(String.valueOf(chooser.getSelectedFile()));
                 String file_name = file.getAbsolutePath();
                 play = new Play(file_name);
-                play.setIDs(321,123);
+                play.setIDs(316602630,311508220);
                 ourJFrame.game = new Game(play.getBoard());
 
                 System.out.println(chooser.getSelectedFile());
@@ -278,6 +303,8 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         MainMenu.add(fileMenu);
         MainMenu.add(addMenu);
         MainMenu.add(algoMenu);
+        MainMenu.add(dbMenu);
+
 
     }
 
@@ -319,8 +346,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         player.addTargetsList(targets); //add all fruits as targets for the player. we can add Packmen also, or any object which implements GIS_Element .
         updatePlayerPathToTargets(player); //todo: update.
         player.moveToAllTargets(ourJFrame.game.getGhosts());
-
-
     }
 
     private ArrayList<GIS_element> parseNameList(ArrayList<String> pathToTarget) {
