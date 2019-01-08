@@ -42,7 +42,6 @@ public class PathsAvoidObstacles {
             GIS_element obs = obsIt.next();
             GeomRectangle rectObs = (GeomRectangle)obs.getGeom();
             //creates 4 new corners:
-            ObstacleCorner topLeft, topRight, botLeft,botRight;
             Point3D topLeftPos = rectObs.getLeftUp();
             Point3D topRightPos = rectObs.getRightUp();
             Point3D botLeftPos = rectObs.getLeftDown();
