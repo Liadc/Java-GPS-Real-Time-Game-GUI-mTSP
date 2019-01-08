@@ -51,8 +51,6 @@ public class DatabaseConnectionQueries {
 				if(currentScore > maxScore){
 					maxScore = currentScore;
 				}
-
-
 			}
 			System.out.println("Total Pts : " + totalPts); //todo: delete
 			System.out.println("Count : " + count); //todo: delete
