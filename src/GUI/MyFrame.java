@@ -25,6 +25,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -209,7 +212,9 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         Menu dbMenu = new Menu("Database");
 
         MenuItem compareDb = new MenuItem("Compare Results");
+        MenuItem showWebsite = new MenuItem("Compare, Sort & Search FULL WEB-SITE");
         dbMenu.add(compareDb);
+        dbMenu.add(showWebsite);
         compareDb.addActionListener(e->{
             String[] choices = { "Ex4_OOP_example1.csv", "Ex4_OOP_example2.csv", "Ex4_OOP_example3.csv",
                     "Ex4_OOP_example4.csv", "Ex4_OOP_example5.csv", "Ex4_OOP_example6.csv" ,
@@ -220,7 +225,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                     choices[0]); // Initial choice
             System.out.println(input);
             System.out.println("Now calling DatabaseConnectionQueries function");//todo: delete
-            Double[] avgs = new Double[2];
+            Double[] avgs;
             avgs = DatabaseConnectionQueries.getAvgFromDB(input);
             showMessageToScreen("For the Map: " + input+"\n" +
                     "Average Points for everyone (excluding us): " + avgs[1]+"\n"+
@@ -229,6 +234,27 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                     "Best Score for Liad & Timor for this map: "+avgs[2]);
         });
 
+        showWebsite.addActionListener(f->{
+            String url = "https://liad.cloud/";
+
+            if(Desktop.isDesktopSupported()){
+                Desktop desktop = Desktop.getDesktop();
+                try {
+                    desktop.browse(new URI(url));
+                } catch (IOException | URISyntaxException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }else{
+                Runtime runtime = Runtime.getRuntime();
+                try {
+                    runtime.exec("xdg-open " + url);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
 
         MenuItem player = new MenuItem("Add Player");
         MenuItem reset = new MenuItem("Reset");
@@ -317,8 +343,9 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
      * if the timeToComplete is lower then the lowest time we got untill now, we will save the new Solution and the new BestTime.
      */
     private void runAlgo() {
-        if (ourJFrame.game == null || ourJFrame.game.getFruits() == null) {
+        if (play == null || ourJFrame.game == null || ourJFrame.game.getFruits() == null) {
             showMessageToScreen("Game is not initiated or fruits are not initiated. \nLoad a new game and press again.");
+            return;
         }
         if(play.isRuning()){
             showMessageToScreen("Already running manual play. \nReset your game and Run Algorithm without placing the player.");
