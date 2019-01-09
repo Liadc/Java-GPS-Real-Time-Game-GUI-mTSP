@@ -149,7 +149,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 resetGame();
                 break;
             }
-            g.setColor(Color.BLACK); //todo: change to Color.decode(obstacle.getData().getColor())
+            g.setColor(Color.decode(obstacle.getData().getColor())); //todo: change to Color.decode(obstacle.getData().getColor())
             g.fillRect((int)upperLeft.x(),(int)upperLeft.y(),(int)(upperRight.x()-upperLeft.x()),(int)(bottomLeft.y()-upperLeft.y()));
         }
 
@@ -163,7 +163,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 resetGame();
                 break;
             }
-            g.setColor(Color.CYAN);
+            g.setColor(Color.decode(corner.getData().getColor()));
             g.fillOval((int) pixel.x()-5, (int) pixel.y()-5, 10, 10);
             g.drawString("ID:"+corner.getID(),(int)pixel.x()-5,(int)pixel.y()-5);
         }
