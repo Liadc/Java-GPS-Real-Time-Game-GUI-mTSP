@@ -20,10 +20,16 @@ public class Meta_data_element implements Meta_data{
         this.name = name;
         if(type.equals("F")) //color for fruit.
             this.color = "#33cc33"; //nice green
-        else if (type.equals("G")) {
+        else if (type.equals("G")) { //Ghosts
             this.color = "#ff0000"; //red
-        } else //color for everything else. pacman for example.
+        } else if (type.equals("OC")) { //ObstacleCorner
+            this.color = "#00FFFF"; //CYAN
+        } else if (type.equals("B")) { //Obstacle (Box)
+            this.color = "#000000"; //Black
+        } else {
+            //color for everything else. pacman for example.
             this.color = "#f0ff00";
+        }
         this.type = type;
         this.UTCtime = System.currentTimeMillis();
     }
@@ -31,7 +37,7 @@ public class Meta_data_element implements Meta_data{
     /**
      * Constructor function, will be called with only a name and UTCtime as used in GIS layer and GIS project meta data.
      * @param name name of the object including this meta data.
-     * @param type indication P = Packman, F = Fruit.
+     * @param type indication P = Packman, F = Fruit etc.
      * @param color color of the object in HEX string.
      */
     public Meta_data_element(String name, String type, String color){

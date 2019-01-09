@@ -3,6 +3,8 @@ package GUI;
 import Algorithms.PathsAvoidObstacles;
 import Coords.MyCoords;
 import GIS.GIS_element;
+import GIS.GIS_layer;
+import GIS.GIS_layer_obj;
 import Game.Fruit;
 import Game.Game;
 import Game.Map;
@@ -15,6 +17,9 @@ import Geom.GeomRectangle;
 import Geom.Point3D;
 import Robot.Play;
 import graph.Graph;
+import graph.Graph_Algo;
+import graph.Node;
+import showDB.DatabaseConnectionQueries;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -24,9 +29,12 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
+import static Algorithms.PathsAvoidObstacles.initGraph;
 import static Algorithms.PathsAvoidObstacles.pathToTargetInclObstacles;
 
 /**
@@ -145,7 +153,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 resetGame();
                 break;
             }
-            g.setColor(Color.BLACK); //todo: change to Color.decode(obstacle.getData().getColor())
+            g.setColor(Color.decode(obstacle.getData().getColor())); //todo: change to Color.decode(obstacle.getData().getColor())
             g.fillRect((int)upperLeft.x(),(int)upperLeft.y(),(int)(upperRight.x()-upperLeft.x()),(int)(bottomLeft.y()-upperLeft.y()));
         }
 
@@ -159,7 +167,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 resetGame();
                 break;
             }
-            g.setColor(Color.CYAN);
+            g.setColor(Color.decode(corner.getData().getColor()));
             g.fillOval((int) pixel.x()-5, (int) pixel.y()-5, 10, 10);
             g.drawString("ID:"+corner.getID(),(int)pixel.x()-5,(int)pixel.y()-5);
         }
@@ -170,6 +178,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             Point3D pixelPlayer = (Point3D) ourJFrame.game.getPlayer().getGeom();
             pixelPlayer = map.CoordsToPixels(pixelPlayer, getHeight(), getWidth());
             g.setColor(Color.white);
+            g.drawString("Player",(int)pixelPlayer.x()-15,(int)pixelPlayer.y()-10);
             g.fillOval((int) pixelPlayer.x()-6, (int) pixelPlayer.y()-6, 12, 12);
         }
 
@@ -181,6 +190,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
     }
 
     private void resetGame() {
+        typeToAdd = 1;
         game = new Game();
         if(ourJFrame.paintThread != null){
             ourJFrame.paintThread.stopAnimKillThread();
@@ -203,7 +213,52 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         Menu fileMenu = new Menu("File");
         Menu addMenu = new Menu("Add");
         Menu algoMenu = new Menu("Algorithm");
+        Menu dbMenu = new Menu("Database");
 
+        MenuItem compareDb = new MenuItem("Compare Results");
+        MenuItem showWebsite = new MenuItem("Compare, Sort & Search FULL WEB-SITE");
+        dbMenu.add(compareDb);
+        dbMenu.add(showWebsite);
+        compareDb.addActionListener(e->{
+            String[] choices = { "Ex4_OOP_example1.csv", "Ex4_OOP_example2.csv", "Ex4_OOP_example3.csv",
+                    "Ex4_OOP_example4.csv", "Ex4_OOP_example5.csv", "Ex4_OOP_example6.csv" ,
+                    "Ex4_OOP_example7.csv" , "Ex4_OOP_example8.csv" , "Ex4_OOP_example9.csv"};
+            String input = (String) JOptionPane.showInputDialog(null, "Choose Map to compare results: ",
+                    "Compare results from Database ", JOptionPane.QUESTION_MESSAGE, null,
+                    choices, // Array of choices
+                    choices[0]); // Initial choice
+            System.out.println(input);
+            System.out.println("Now calling DatabaseConnectionQueries function");//todo: delete
+            Double[] avgs;
+            avgs = DatabaseConnectionQueries.getAvgFromDB(input);
+            showMessageToScreen("For the Map: " + input+"\n" +
+                    "Average Points for everyone (excluding us): " + avgs[1]+"\n"+
+                    "Average Points for Liad & Timor: "+ avgs[0] + "\n"+
+                    "Best Score for this map (excluding us): " + avgs[3]+"\n"+
+                    "Best Score for Liad & Timor for this map: "+avgs[2]);
+        });
+
+        showWebsite.addActionListener(f->{
+            String url = "https://liad.cloud/";
+
+            if(Desktop.isDesktopSupported()){
+                Desktop desktop = Desktop.getDesktop();
+                try {
+                    desktop.browse(new URI(url));
+                } catch (IOException | URISyntaxException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }else{
+                Runtime runtime = Runtime.getRuntime();
+                try {
+                    runtime.exec("xdg-open " + url);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
 
         MenuItem player = new MenuItem("Add Player");
         MenuItem reset = new MenuItem("Reset");
@@ -220,13 +275,12 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         });
         addMenu.add(player);
 
+        MenuItem runRandomized = new MenuItem("Run Randomized Algorithm");
+        MenuItem runGreedy = new MenuItem("Run Greedy Algorithm");
+        MenuItem corners = new MenuItem("Show Corners");
 
-        MenuItem saveToCsvItemMenu = new MenuItem("Save To CSV");
-
-        MenuItem run = new MenuItem("Run");
-        MenuItem corners = new MenuItem("Add Corners");
-
-        algoMenu.add(run);
+        algoMenu.add(runRandomized);
+        algoMenu.add(runGreedy);
         algoMenu.add(corners);
 
 
@@ -247,7 +301,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 File file = new File(String.valueOf(chooser.getSelectedFile()));
                 String file_name = file.getAbsolutePath();
                 play = new Play(file_name);
-                play.setIDs(321,123);
+                play.setIDs(316602630,311508220);
                 ourJFrame.game = new Game(play.getBoard());
 
                 System.out.println(chooser.getSelectedFile());
@@ -257,12 +311,25 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             ourJFrame.repaint();
         });
 
-        //run algo clicked
-        run.addActionListener(l->{ if(ourJFrame.paintThread != null && ourJFrame.paintThread.isKeepGoing()){ /*if we have a thread painting in the background, we will stop the animation and kill the thread.*/
+        //run algo randomized clicked
+        runRandomized.addActionListener(l->{ if(ourJFrame.paintThread != null && ourJFrame.paintThread.isKeepGoing()){ /*if we have a thread painting in the background, we will stop the animation and kill the thread.*/
             ourJFrame.paintThread.stopAnimKillThread();
         }
 //            try { //todo: uncomment this.
-                ourJFrame.runAlgo();
+                ourJFrame.runRandomizedAlgo();
+//            }catch (RuntimeException e){
+//                JOptionPane.showMessageDialog(null, e.getMessage());
+//
+//            }
+        });
+
+        //run algo greedy clicked.
+        runGreedy.addActionListener(e->{
+            if(ourJFrame.paintThread != null && ourJFrame.paintThread.isKeepGoing()){ /*if we have a thread painting in the background, we will stop the animation and kill the thread.*/
+            ourJFrame.paintThread.stopAnimKillThread();
+        }
+//            try { //todo: uncomment this.
+            ourJFrame.runGreedyAlgo();
 //            }catch (RuntimeException e){
 //                JOptionPane.showMessageDialog(null, e.getMessage());
 //
@@ -278,31 +345,32 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         MainMenu.add(fileMenu);
         MainMenu.add(addMenu);
         MainMenu.add(algoMenu);
+        MainMenu.add(dbMenu);
+
 
     }
 
     /**
-     * this method execute by the Menu,
-     * check if there are packmans or fruits in the game.
-     * we consider that everytime the HashSet will be ordred different each time, and we take this HashSet into an Array.
-     * and then we run the algorithm on this shuffled array.
-     * we save the time to complete the solution and the solution,
-     * if the timeToComplete is lower then the lowest time we got untill now, we will save the new Solution and the new BestTime.
+     * This method will be used to initialize a game with all required data to perform any algorithm logic.
+     * The method will return an ArrayList of targets (GIS_Elements), which at this moment is only fruits as we find this is the most efficiently
+     * way to score the highest in a game.
+     * It places the Player on a random first target, but all further algorithmic logic will be performed according to Algorithm selected (Greedy/Randomized).
+     * @return ArrayList of GIS_elements, the targets to be used for the player to eat.
      */
-    private void runAlgo() {
-        if (ourJFrame.game == null || ourJFrame.game.getFruits() == null) {
+    private ArrayList<GIS_element> algoInit() {
+        if (play == null || ourJFrame.game == null || ourJFrame.game.getFruits() == null) {
             showMessageToScreen("Game is not initiated or fruits are not initiated. \nLoad a new game and press again.");
+            return null;
         }
         if(play.isRuning()){
             showMessageToScreen("Already running manual play. \nReset your game and Run Algorithm without placing the player.");
-            return;
+            return null;
         }
         if(ourJFrame.game.getFruits().size() == 0){
             throw new RuntimeException("No fruits to calculate solution.");
         }
-        //TODO: implement method for algorithm to run. Question 4.
-        //todo: work these lines ->>
         ArrayList<GIS_element> targets = new ArrayList<>(ourJFrame.game.getFruits()); //random each run. we init from a SET. order not guaranteed.
+        Collections.shuffle(targets); //shuffling targets order to get randomized solution.
         Player player = new Player();
         Point3D playerPos = (Point3D)targets.get(0).getGeom();
         ourJFrame.game.initCorners();
@@ -310,18 +378,80 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         ourJFrame.game.addPlayer(player);
         ourJFrame.repaint();
 
-        //server simulations: targets order are randomized and are simulated for many times. we hold the best score.
+        //server simulations: targets order are randomized.
         play.setInitLocation(playerPos.y(),playerPos.x());
 //        System.out.println();
         ourJFrame.game.updateGame(play.getBoard());
+        ourJFrame.paintImmediately(0, 0, getWidth(), getHeight());
         System.out.println("*********** !! Game Started !! ***********");
         play.start();
-        player.addTargetsList(targets); //add all fruits as targets for the player. we can add Packmen also, or any object which implements GIS_Element .
-        updatePlayerPathToTargets(player); //todo: update.
-        player.moveToAllTargets(ourJFrame.game.getGhosts());
 
+
+        return targets;
+    }
+
+    private void runGreedyAlgo() {
+        ArrayList<GIS_element> targets = algoInit();
+        play.rotate(0); //get rid of first element, will set the GIS_element to EATEN, no performance loss.
+        ourJFrame.game.updateGame(play.getBoard()); //updates the game according to our first element eaten.
+        if(targets == null){ //this means initialization is wrong, message is already on screen, we should not move onto the algorithm if this happens-> just return.
+            return;
+        }
+        Player player = (Player)game.getPlayer();
+        //player is already set on the first target (randomized) from the ArrayList of targets.
+        //from now on, the player will search for the next shortest path to the next target from all available targets at this time,
+        //and move to the target, as long as it has not been eaten.
+        GIS_layer tr = new GIS_layer_obj();
+        tr.addAll(targets);
+        int i =0;
+        while(tr.size() > 0){ //still have targets to kill.
+            Graph G = initGraph(tr, game, map, getHeight(), getWidth());
+            String targetNode = "closeTarget"+i;
+            Node trNode = new Node(targetNode);
+            G.add(trNode);
+            for(GIS_element targetsLeft : tr){
+                G.addEdge("" + targetsLeft.getData().getType() + targetsLeft.getID(), targetNode, 0); //we add zero-weight edge from all targets to newly-created "target"
+                //which will help super-position of the real closest target. this way, Dijkstra's algorithm will find shortest route to our "closeTarget" node, between all other targets.
+            }
+            String sourceNode = "fromCurrentPos"+i;
+            Node fromNode = new Node(sourceNode);
+            G.add(fromNode);
+            PathsAvoidObstacles.addSourceToGraph(G, (Point3D) player.getGeom(), sourceNode, game, map, getHeight(), getWidth());
+            ArrayList<String> pathStringToTarget = pathToTargetInclObstacles(G, sourceNode, targetNode, true);
+            ArrayList<GIS_element> realPath = parseNameList(pathStringToTarget); //the gis_element order to move on, in order to get to the target.
+            System.out.println("next targets for the player in greedy algo: " + realPath); //todo: delete
+//            realPath.remove(0); //first element is the fromTarget, we already hold it since it was the toTarget last iteration. for iteration zero-> player is placed on first target. no need to include.
+            player.setTargetsOrder(realPath);
+            player.moveToAllTargets(game.getGhosts()); //will move to all targets set.
+
+            tr.removeIf(GIS_element::isEaten); //all eaten elements are not a viable GIS_element target. Already killed.
+        }
 
     }
+
+
+
+    /**
+     * this method execute by the Menu,
+     * check if there are packmans or fruits in the game.
+     * we consider that everytime the HashSet will be ordered differently each time, and we take this HashSet into an Array.
+     * and then we run the algorithm on this shuffled array.
+     * we save the time to complete the solution and the solution
+     */
+    private void runRandomizedAlgo() {
+        ArrayList<GIS_element> targets  = algoInit();
+        if(targets == null){ //this means initialization is wrong, message is already on screen, we should not move onto the algorithm if this happens-> just return.
+            return;
+        }
+        //TODO: implement method for algorithm to run. Question 4.
+        //todo: work these lines ->>
+        Player player = (Player)game.getPlayer();
+
+        player.addTargetsList(targets); //add all fruits as targets for the player. we can add Packmen also, or any object which implements GIS_Element .
+        updatePlayerPathToTargets(player,false); //todo: update.
+        player.moveToAllTargets(ourJFrame.game.getGhosts());
+    }
+
 
     private ArrayList<GIS_element> parseNameList(ArrayList<String> pathToTarget) {
         ArrayList<GIS_element> realTargets = new ArrayList<>();
@@ -354,11 +484,13 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
     }
 
     /**
-     * This method will look for the player targets and checks if the path is legit (i.e - the player can move to each target one by one without collision with obstacles).
-     * If it finds that the next target requires maneuvering an obstacle, it will calculate shortest path to the target while avoiding obstacles using Dijkstra's algorithm in Graph.
+     * This method will look for the player targets and checks if the path is legit
+     * (i.e - the player can move to each target one by one without collision with obstacles).
+     * If it finds that the next target requires maneuvering an obstacle,
+     * it will calculate shortest path to the target while avoiding obstacles using Dijkstra's algorithm in Graph.
      * it then updates the target list of the player, so the player can move to targets in the order provided without collisions with obstacles.
      */
-    private void updatePlayerPathToTargets(Player player) {
+    private void updatePlayerPathToTargets(Player player, boolean greedy) {
         ArrayList<GIS_element> currentTargetsOrder = player.getTargetsOrder();
         ArrayList<GIS_element> newTargetsOrder = new ArrayList<>();
         for(int i = 0 ;i<currentTargetsOrder.size()-1; i++){
@@ -370,8 +502,8 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             System.out.println("Best route from (" +fromTrName+ ") to target named: " + toTrName+" is: "); //todo: delete
 
             //calc shortest path to next target, obstacles avoided:
-            Graph g = PathsAvoidObstacles.initGraph(ourJFrame.game.getFruits(), ourJFrame.game.getObstacles(), ourJFrame.game,map,getHeight(),getWidth());
-            ArrayList<String> pathStringToTarget = pathToTargetInclObstacles(g, fromTrName, toTrName);
+            Graph g = PathsAvoidObstacles.initGraph(ourJFrame.game.getFruits(), ourJFrame.game,map,getHeight(),getWidth());
+            ArrayList<String> pathStringToTarget = pathToTargetInclObstacles(g, fromTrName, toTrName, greedy);
             ArrayList<GIS_element> realPath = parseNameList(pathStringToTarget); //the gis_element order to move on, in order to get to the target.
             realPath.remove(0); //first element is the fromTarget, we already hold it since it was the toTarget last iteration. for iteration zero-> player is placed on first target. no need to include.
             newTargetsOrder.addAll(realPath);
@@ -380,6 +512,9 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         player.setTargetsOrder(newTargetsOrder);
     }
 
+    /**
+     * This method will print the game board and statistics incl. game score to the console.
+     */
     private void printBoardAndStats(){
         ArrayList<String> board_data = play.getBoard();
         for(int i=0;i<board_data.size();i++) {
@@ -420,7 +555,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             play.rotate(angle);
             ourJFrame.game.updateGame(play.getBoard());
             printBoardAndStats();
-            System.out.println("Last move was rotate on Angle from player to click pixel: "+angle);
+            System.out.println("Last move was rotate on Angle from player to click pixel. Angle: "+angle);
             ourJFrame.repaint();
         }
     }

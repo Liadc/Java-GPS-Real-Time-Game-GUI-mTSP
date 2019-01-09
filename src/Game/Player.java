@@ -92,7 +92,7 @@ public class Player extends GIS_element_obj {
         //otherwise
         while (MyFrame.play.isRuning() && distancePointFromEatRadius(targetPos) > 0.5 && !target.isEaten()){
             //player about to rotate towards target. logic for checking for ghosts in the way will be here.
-            avoidGhosts(getAngleToTarget(target), ghosts);
+//            avoidGhosts(getAngleToTarget(target), ghosts);
             MyFrame.play.rotate(getAngleToTarget(target));  //actually moving.
             MyFrame.ourJFrame.game.updateGame(MyFrame.play.getBoard());
             MyFrame.ourJFrame.paintImmediately(0,0,MyFrame.ourJFrame.getWidth(),MyFrame.ourJFrame.getHeight());
