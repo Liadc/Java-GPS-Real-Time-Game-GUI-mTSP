@@ -38,8 +38,8 @@ public class DatabaseConnectionQueries {
 			Statement statement = connection.createStatement();
 
 			//get data
-			String allCustomersQuery = "SELECT * FROM logs WHERE FirstID='316602630' AND SomeDouble='" +hashOfFile+ "';";
-			ResultSet resultSet = statement.executeQuery(allCustomersQuery);
+			String dbSQLquery = "SELECT * FROM logs WHERE FirstID='316602630' AND SomeDouble='" +hashOfFile+ "';";
+			ResultSet resultSet = statement.executeQuery(dbSQLquery);
 			double totalPts = 0;
 			int count = 0;
 			double maxScore = Double.MIN_VALUE;
@@ -60,8 +60,8 @@ public class DatabaseConnectionQueries {
 			avgs[2] = maxScore;
 
 			//now get the average for this map excluding our score.
-			allCustomersQuery = "SELECT * FROM logs WHERE SomeDouble='" +hashOfFile+ "' AND (NOT FirstID='316602630');";
-			resultSet = statement.executeQuery(allCustomersQuery);
+			dbSQLquery = "SELECT * FROM logs WHERE SomeDouble='" +hashOfFile+ "' AND (NOT FirstID='316602630');";
+			resultSet = statement.executeQuery(dbSQLquery);
 			totalPts = 0;
 			count = 0;
 			maxScore = Double.MIN_VALUE;
