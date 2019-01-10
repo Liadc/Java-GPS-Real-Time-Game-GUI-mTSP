@@ -80,7 +80,7 @@ public class MyCoords implements coords_converter {
     }
 
     /**
-     * computes the polar representation of the 3D vector be gps0-->gps1
+     * computes the polar representation of the 3D vector be gps0 to gps1
      * returns the azimuth, elevation, distance between 2 points.
      * @param gps0 first gps point.
      * @param gps1 second gps point.

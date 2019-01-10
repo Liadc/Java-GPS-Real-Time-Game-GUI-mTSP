@@ -90,6 +90,7 @@ public class Path{
     /**
      * Gets time (in MS) and returns how many fruits the pacman ate in the path.
      * @param timeInMillis time in seconds.
+     * @return fruitEaten
      */
    public int getHowManyEatenAfterXtime(long timeInMillis) {
        int counterFruits = this.fruitsInPath.size();
@@ -140,7 +141,7 @@ public class Path{
    }
 
         /**
-         * This method will return the location of Fruit in index X , 0<=x<size of FruitArr
+         * This method will return the location of Fruit in index X , 0 less or equal to x that less then the size of FruitArr
          * @param pathPosition
          * @return Point3D - the location of Fruit
          */
