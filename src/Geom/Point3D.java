@@ -109,23 +109,6 @@ public final static int DOWN = 6, UP = 7;
     	return flag;
 	}
 
- 
-    /** pointLineTest <br>
-	test the following location of a point regards a line segment - all in 2D projection.<br><br>
-   
-	ONSEGMENT:  �����a----+----b������                              <br> <br>
-
-	           +       +        +                              <br>
-	LEFT:	 �����a---------b������                              <br> <br>
-
-
-	RIGHT:	 �����a---------b������                              <br>
-    		   +      +        +                              <br> <br>
-
-	INFRONTOFA:  ��+��a---------b������                              <br>
-        BEHINDB:  �����a---------b����+�                              <br>
-	ERROR: a==b || a==null || b == null;                               <br>
-    */
 
     public int pointLineTest(Point3D a, Point3D b) {
 
@@ -213,7 +196,7 @@ public final static int DOWN = 6, UP = 7;
 		if(p==null) throw new RuntimeException("** Error: Point3D angleZ got null **");
 		return Math.atan2((p._z-_z), this.distance2D(p));
 	}	
-/** return the (planer angle of the vector between this --> p, in DEGREES, in a
+/** return the (planer angle of the vector between this to p, in DEGREES, in a
  * compass order: north 0, east 90, south 180, west 270.
  * @param p is the end point of the vector (z value is ignored). 
  * @return angle in compass styye [0,360).
@@ -226,7 +209,7 @@ public final static int DOWN = 6, UP = 7;
 		else ans = 450-a_deg;
 		return ans;
 	}
-	/** return the vertical angles in DEGREES of the vector this-->p
+	/** return the vertical angles in DEGREES of the vector this to p
 	 * 
 	 * */
 	public double up_angle(Point3D p) {
@@ -234,7 +217,7 @@ public final static int DOWN = 6, UP = 7;
 		ans = Math.atan2((p._z-_z), this.distance2D(p));
 		return Math.toDegrees(ans);
 	}
-	/** return the vertical angles in DEGREES of the vector this-->p, 
+	/** return the vertical angles in DEGREES of the vector this to p,
 	 *  @param h: is the extra height of the point p (used by GISElement).
 	 * */
 	public double up_angle(Point3D p, double h) {

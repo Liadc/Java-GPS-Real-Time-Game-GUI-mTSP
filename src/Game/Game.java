@@ -162,7 +162,7 @@ public class Game {
      * It will parse each String and updates all relevant objects in our Game according to the new data.
      * It will take care of object which are not present in the new gameBoard but are inside the Game - it will delete them,
      * using the UnNecessary functions.
-     * @param firstBoardLine String, line of the game board data to update the geom from.
+     * @param gameBoard String, line of the game board data to update the geom from.
      */
     public void updateGame(ArrayList<String> gameBoard) {
         Iterator<String> lines = gameBoard.iterator();
@@ -228,8 +228,7 @@ public class Game {
 
     /**
      * Saves current game state into CSV file. returns CSV file path.
-     *
-     * @return file path for CSV file.
+     * @param fullPath
      */
     public void saveGameToCsv(String fullPath) {
         final String COMMA = ",";
