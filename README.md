@@ -100,15 +100,9 @@ More information and details inside the WIKI of this repo. <br>
 ## Project Structure, Packages, Classes and Class Diagram
 
 ### Overview:
-| Package| Description|
-| ------ | ------ |
-| Coords| [Will be updated for Ex4][sameREADME]|
-| GIS 	| [Will be updated for Ex4][sameREADME] |
-| Geom | [Will be updated for Ex4][sameREADME] |
-| Game | [Will be updated for Ex4][sameREADME] |
-| GUI| [Will be updated for Ex4][sameREADME] |
-| Algorithms | [Will be updated for Ex4][sameREADME] |
-| File_format| [Will be updated for Ex4][sameREADME] |
+![alt text](https://i.imgur.com/4lc4Z3r.jpg)
+@see: 
+<a href src = https://liadc.github.io/OOP-Ex4/>Java Doc </a>
 
 
    [sameREADME]: <https://github.com/xposionn/OOP-Ex2/edit/master/README.md>
