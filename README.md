@@ -29,7 +29,6 @@ Algorithms to solve mTSP/VRP problems as all "Pacmen" will have to eat all "Frui
 
 ## Showcase
 More Pictures and GIFs here after Ex4 is completed.
-![alt text]()
 
 ![alt text](https://camo.githubusercontent.com/6720886e5d4570689d94e5adc5162f3c489d8cb3/68747470733a2f2f692e6962622e636f2f5a4b714c6b64622f53637265656e73686f742d312e706e67)
 
@@ -101,9 +100,9 @@ More information and details inside the WIKI of this repo. <br>
 
 ### Overview:
 ![alt text](https://i.imgur.com/4lc4Z3r.jpg)
-@see: 
+/**@see: 
 <a href src = https://liadc.github.io/OOP-Ex4/>Java Doc </a>
-
+**/
 
    [sameREADME]: <https://github.com/xposionn/OOP-Ex2/edit/master/README.md>
 
