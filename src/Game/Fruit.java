@@ -41,6 +41,11 @@ public class Fruit extends GIS_element_obj{
         super(geometryOfElement, dataOfElement,ID);
         this.weight = weight;
     }
+
+    /**
+     * Constructor for the Fruit object. gets a String representing all data to build a fruit object.
+     * @param line String containing all data for the Fruit object separated by commas ,   .
+     */
     public Fruit(String line) {
         super();
         String[] arr = line.split(",");
@@ -82,6 +87,10 @@ public class Fruit extends GIS_element_obj{
         return "Fruit{"+getID()+"}";
     }
 
+    /**
+     * This method will get a line of a specific fruit and updates the Geom (Point3D position) of the current fruit.
+     * @param firstBoardLine String, line of the game board data to update the geom from.
+     */
     public void updateGeom(String firstBoardLine) {
         String[] arg = firstBoardLine.split(",");
         Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");

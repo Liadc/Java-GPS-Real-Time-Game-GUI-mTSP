@@ -64,11 +64,10 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
     /**
      * paint function.
-     * will rewrite each time the packmans in they curret location, (if we changed them)
-     * Run on Packman array and Fruits array, and paint them one by one.
+     * will rewrite each time the objects inside the Game in their current location,
+     * Run on Packman array and Fruits array, ghosts, obstacles, corners, player etc. and paint them one by one.
      *
-     * LineSolution will be created and painted too.
-     * @param g
+     * @param g Graphics, java utility.
      */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -87,7 +86,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         if(ourJFrame.game.getObstacleCorners() != null)
             cornersIterator = ourJFrame.game.getObstacleCorners().iterator();
 
-
         while (PacIterator.hasNext()) {
             Packman pacman = (Packman)PacIterator.next();
             Point3D pixel = null;
@@ -103,7 +101,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             g.drawString("ID: "+pacman.getID(),(int)pixel.x()-5,(int)pixel.y()-10);
             g.drawString("Speed: "+pacman.getSpeed(),(int)pixel.x()-5,(int)pixel.y()-25);
         }
-
 
         while (FruitIterator.hasNext()) {
             Fruit fruit = (Fruit)FruitIterator.next();
@@ -181,10 +178,9 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             g.drawString("Player",(int)pixelPlayer.x()-15,(int)pixelPlayer.y()-10);
             g.fillOval((int) pixelPlayer.x()-6, (int) pixelPlayer.y()-6, 12, 12);
         }
-
-
-//        System.out.println("Finished paint");
     }
+
+
     private static void showMessageToScreen(String msg){
         JOptionPane.showMessageDialog(null, msg);
     }
@@ -404,7 +400,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         GIS_layer tr = new GIS_layer_obj();
         tr.addAll(targets);
         int i =0;
-        while(tr.size() > 0){ //still have targets to kill.
+        while(tr.size() > 0 && play.isRuning()){ //still have targets to kill.
             Graph G = initGraph(tr, game, map, getHeight(), getWidth());
             String targetNode = "closeTarget"+i;
             Node trNode = new Node(targetNode);
