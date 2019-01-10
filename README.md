@@ -67,7 +67,7 @@ Later, to develop an AI algorithm: The player will move automatically and play a
 ### Load/Save file Menu
 ![alt text](https://i.imgur.com/BiGHdNc.jpg)
 ### Load a file
->![alt text](https://i.imgur.com/4jeLKvr.jpg)
+![alt text](https://i.imgur.com/4jeLKvr.jpg)
 ![alt text](https://i.imgur.com/FAror2g.jpg)
 
 ![alt text]()
@@ -100,9 +100,10 @@ More information and details inside the WIKI of this repo. <br>
 
 ### Overview:
 ![alt text](https://i.imgur.com/4lc4Z3r.jpg)
-/**@see: 
-<a href src = https://liadc.github.io/OOP-Ex4/>Java Doc </a>
-**/
+
+ <a href src = https://liadc.github.io/OOP-Ex4/>Java Doc </a>
+
+
 
    [sameREADME]: <https://github.com/xposionn/OOP-Ex2/edit/master/README.md>
 
