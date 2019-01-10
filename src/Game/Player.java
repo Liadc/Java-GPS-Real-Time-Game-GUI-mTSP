@@ -21,16 +21,19 @@ public class Player extends GIS_element_obj {
 
     /**
      * Constructor for the GIS_element object. gets a Geom_element, Meta_data and ID.
-     *
      * @param geometryOfElement Geom_element, the geometry object of the element.
      * @param dataOfElement     Meta_data, the data of the element.
-     * @param ID
+     * @param ID                Integer, the ID for the element.
      */
 
     public Player(Geom_element geometryOfElement, Meta_data dataOfElement, int ID) {
         super(geometryOfElement, dataOfElement, ID);
     }
 
+    /**
+     * empty constructor for the Player.
+     * Will set its speed to 20.0 , eat radius to 1, and an empty arraylist of targets.
+     */
     public Player() {
         super();
         this.speed = 20.0;
@@ -82,8 +85,9 @@ public class Player extends GIS_element_obj {
     }
 
     /**
-     * This function will get a target and moves to target location until target is eaten
+     * This function will get a target and moves to target location until target is eaten, while avoiding ghosts on the way.
      * @param target gis_element_obj, such as a fruit or packmen, etc.
+     * @param ghosts GIS_layer, a set containing all ghosts (enemies) to avoid while moving to a target.
      */
     public void moveToEatTarget(GIS_element target, GIS_layer ghosts) {
         Point3D targetPos = (Point3D) target.getGeom();
@@ -160,8 +164,11 @@ public class Player extends GIS_element_obj {
     }
 
     /**
-     * This method will move to all current available targets, one by one. if, for any reason, a target becomes unavailable(such as
-     * a fruit is eaten by another packmen) while the player is on the way to the fruits, it will move to the next target in it's arraylist of targets.
+     * This method will get a set of Ghosts, and moves the player to all current available targets, one by one.
+     * if, for any reason, a target becomes unavailable(such as a fruit is eaten by another packmen)
+     * while the player is on the way to the fruits, it will move to the next target in it's arraylist of targets.
+     * All this while avoiding ghosts on its way.
+     * @param ghosts GIS_layer, the Set of ghosts to avoid.
      */
     public void moveToAllTargets(GIS_layer ghosts){
         Iterator<GIS_element> targetIt = targetsOrder.iterator();
@@ -174,7 +181,7 @@ public class Player extends GIS_element_obj {
 
     /**
      * This method calculate distance point from radius of packman
-     * @param p - point to distance to
+     * @param p - point to check distance to
      * @return the distance between the Radius of packman to Point p.
      */
     public double distancePointFromEatRadius(Point3D p){
@@ -186,7 +193,11 @@ public class Player extends GIS_element_obj {
         return ans;
     }
 
-
+    /**
+     * This method will get a String representing all data about the new Object, but will only update the Geom of the
+     * Player, i.e its  Point3D position.
+     * @param firstBoardLine String, the data about this packman needed to be parsed in order to update the Geom.
+     */
     public void updateGeom(String firstBoardLine) {
         String[] arg = firstBoardLine.split(",");
         Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
@@ -195,19 +206,36 @@ public class Player extends GIS_element_obj {
 
     /*** Targets for player ***/
 
+    /**
+     * This method will get a GIS_element target and add it to the player's arrayList of targets.
+     * @param target GIS_element, an object to add into the ArrayList of targets for this player.
+     */
     public void addTarget(GIS_element target){
         this.targetsOrder.add(target);
     }
 
+    /**
+     * This method will get an ArrayList of GIS_elements (targets) and sets the ArrayList of targets for the player
+     * to this given ArrayList.
+     * @param targets ArrayList of GIS_elements, to set as targets for this player.
+     */
     public void setTargetsOrder(ArrayList<GIS_element> targets){
         this.targetsOrder = targets;
     }
 
+    /**
+     * This method will get an ArrayList of GIS_elements (targets) and adds all elements into the current ArrayList
+     * of targets for this player.
+     * @param targets ArrayList of GIS_elements, to add to the current ArrayList of targets.
+     */
     public void addTargetsList(ArrayList<GIS_element> targets){
         this.targetsOrder.addAll(targets);
     }
 
-
+    /**
+     * This method will get an GIS_element (target) and removes it from the ArrayList of targets for this player.
+     * @param target
+     */
     public void removeTarget(GIS_element target){
         this.targetsOrder.remove(target);
     }

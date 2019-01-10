@@ -26,9 +26,9 @@ import java.util.Set;
 public class PathsAvoidObstacles {
 
     /**
-     * This method will get an arraylist of obstacles and create new gis_element_obj (corner position)
+     * This method will get an arraylist of obstacles, and a Game, and then creates new gis_element_obj (corner position)
      * of the obstacles, as long as the position is outside of any other obstacles. (no overlapping).
-     * it returns the set of these objects.
+     * it returns the set of these objects, and also sets the game corners to this set.
      */
     public static Set createObstacleCorners(Set<GIS_element> obstacles, Game game){
         if (game.getObstacleCorners() != null) {
@@ -84,7 +84,7 @@ public class PathsAvoidObstacles {
     }
 
     /**
-     * This method will get a Player element, GIS_Layer of targets, and GIS_Layer of obstacles.
+     * This method will get a GIS_Layer of targets, Game, Map, and height and width of the window called.
      * The method will create a new Graph, source vertex is player object. targets are all vertexes available in the graph.
      * it will calculate all corners of obstacles and add them to the graph to make the graph connected.
      * the method will check between each pair of vertexes if there is LOS (line of sight, if they can 'see' each other with no
@@ -165,8 +165,11 @@ public class PathsAvoidObstacles {
 
 
     /**
-     * This method gets a Graph, source GIS_element and a given target GIS_element object.
-     * it calculates and returns the shortest path to the given target while avoiding collision with obstacles.
+     * This method gets a Graph, source GIS_element, a given target GIS_element object and a boolean Greedy.
+     * it calculates and returns the shortest path (ArrayList of GIS_Elements to move on this order)
+     * to the given target while avoiding collision with obstacles.
+     * if greedy is selected (true) we remove the first element from the target list.
+     * otherwise, we add the target to the last index of path returned.
      */
     public static ArrayList<String> pathToTargetInclObstacles(Graph g,String source, String target, boolean greedy){
         Graph_Algo.dijkstra(g, source);
@@ -184,7 +187,8 @@ public class PathsAvoidObstacles {
 
 
     /**
-     * This method will get a graph G, a Point3D representing the source position to add to the graph, and a name to be used for this vertex in the graph.
+     * This method will get a graph G, a Point3D representing the source position to add to the graph,
+     * a name to be used for this vertex in the graph. Game, Map, height and width of the window called.
      * it will also add all relevant edges for this vertex.
      * @param g the Graph we want to add the vertex to.
      * @param sourcePos the Position in Point3D of the source vertex we want to add.
@@ -241,11 +245,11 @@ public class PathsAvoidObstacles {
 
     /**
      * This method will get a vertexName (in a graph) and a Game, and will search an object with specific name in the Game given.
-     * i.e - for String F6, it will search an object Fruit with ID 6 , in the Game given to the method.
+     * i.e - for String "F6", it will search an object Fruit with ID 6 , in the Game given to the method.
      * will return NULL if no gis_element found with the given name inside the given game.
      * @param vertexName the name to search an object for.
      * @param game the game to search the object inside.
-     * @return the GIS_element to return based on the string given.
+     * @return the GIS_element to return based on the string given. returns NULL if nothing found.
      */
     private static GIS_element parseNameElementToObject(String vertexName, Game game){
         if (vertexName.contains("F")) { //fruit.
