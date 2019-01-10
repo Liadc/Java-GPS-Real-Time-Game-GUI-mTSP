@@ -68,15 +68,16 @@ Later, to develop an AI algorithm: The player will move automatically and play a
 ### Load/Save file Menu
 ![alt text](https://i.imgur.com/BiGHdNc.jpg)
 ### Load a file
+>![alt text](https://i.imgur.com/4jeLKvr.jpg)
+![alt text](https://i.imgur.com/FAror2g.jpg)
 
->![alt text](https://i.imgur.com/UIJZV0I.png)
-### Save a file
+![alt text]()
+### Run an Algorithm:
+![alt text](https://i.imgur.com/9g8kT3v.jpg)
+### Compare results against other players:
+![alt text](https://i.imgur.com/6Upwcjm.jpg)
+![alt text](https://i.imgur.com/0f9yiNg.jpg)
 
-![alt text](https://i.imgur.com/ckQPGyL.png)
-
-### Export to KML file (compatible with Google Earth)
-
-![alt text](https://i.imgur.com/rLI1jXf.jpg)
 
 ## AI Algorithms Explanation
 We have developed two algorithms: Randomized and Greedy algorithm for the player AI.
