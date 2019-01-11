@@ -399,17 +399,16 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         //and move to the target, as long as it has not been eaten.
         GIS_layer tr = new GIS_layer_obj();
         tr.addAll(targets);
-        int i =0;
         while(tr.size() > 0 && play.isRuning()){ //still have targets to kill.
             Graph G = initGraph(tr, game, map, getHeight(), getWidth());
-            String targetNode = "closeTarget"+i;
+            String targetNode = "closeTarget";
             Node trNode = new Node(targetNode);
             G.add(trNode);
             for(GIS_element targetsLeft : tr){
                 G.addEdge("" + targetsLeft.getData().getType() + targetsLeft.getID(), targetNode, 0); //we add zero-weight edge from all targets to newly-created "target"
                 //which will help super-position of the real closest target. this way, Dijkstra's algorithm will find shortest route to our "closeTarget" node, between all other targets.
             }
-            String sourceNode = "fromCurrentPos"+i;
+            String sourceNode = "fromCurrentPos";
             Node fromNode = new Node(sourceNode);
             G.add(fromNode);
             PathsAvoidObstacles.addSourceToGraph(G, (Point3D) player.getGeom(), sourceNode, game, map, getHeight(), getWidth());
