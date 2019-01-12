@@ -26,7 +26,7 @@ import java.util.Set;
 public class PathsAvoidObstacles {
 
     /**
-     * This method will get an arraylist of obstacles, and a Game, and then creates new gis_element_obj (corner position)
+     * This method will get an ArrayList of obstacles, and a Game, and then creates new gis_element_obj (corner position)
      * of the obstacles, as long as the position is outside of any other obstacles. (no overlapping).
      * it returns the set of these objects, and also sets the game corners to this set.
      */
