@@ -53,7 +53,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
     public MyFrame() {
         game = new Game();
-        Point3D topLeft = new Point3D(35.20236,32.10572); //TODO: Change this hardCoded to Game Bounded (ourJframe.play.getBoundingBox();)
+        Point3D topLeft = new Point3D(35.20236,32.10572);
         Point3D downRight = new Point3D(35.21235,32.10194);
         this.map = new Map(new File("Resources/GameMaps/Ariel1.png"),topLeft,downRight);
         addMouseListener(this);
@@ -153,7 +153,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 resetGame();
                 break;
             }
-            g.setColor(Color.decode(obstacle.getData().getColor())); //todo: change to Color.decode(obstacle.getData().getColor())
+            g.setColor(Color.decode(obstacle.getData().getColor()));
             g.fillRect((int)upperLeft.x(),(int)upperLeft.y(),(int)(upperRight.x()-upperLeft.x()),(int)(bottomLeft.y()-upperLeft.y()));
         }
 
@@ -228,7 +228,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                     choices, // Array of choices
                     choices[0]); // Initial choice
             System.out.println(input);
-            System.out.println("Now calling DatabaseConnectionQueries function");//todo: delete
+            System.out.println("Now calling DatabaseConnectionQueries function");//shows the calling for the database query function. optional.
             Double[] avgs;
             avgs = DatabaseConnectionQueries.getAvgFromDB(input);
             showMessageToScreen("For the Map: " + input+"\n" +
@@ -246,7 +246,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 try {
                     desktop.browse(new URI(url));
                 } catch (IOException | URISyntaxException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }else{
@@ -254,7 +253,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
                 try {
                     runtime.exec("xdg-open " + url);
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -315,12 +313,11 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         runRandomized.addActionListener(l->{ if(ourJFrame.paintThread != null && ourJFrame.paintThread.isKeepGoing()){ /*if we have a thread painting in the background, we will stop the animation and kill the thread.*/
             ourJFrame.paintThread.stopAnimKillThread();
         }
-//            try { //todo: uncomment this.
+            try {
                 ourJFrame.runRandomizedAlgo();
-//            }catch (RuntimeException e){
-//                JOptionPane.showMessageDialog(null, e.getMessage());
-//
-//            }
+            }catch (RuntimeException e){
+                JOptionPane.showMessageDialog(null, e.getMessage());
+            }
         });
 
         //run algo greedy clicked.
@@ -328,12 +325,11 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             if(ourJFrame.paintThread != null && ourJFrame.paintThread.isKeepGoing()){ /*if we have a thread painting in the background, we will stop the animation and kill the thread.*/
             ourJFrame.paintThread.stopAnimKillThread();
         }
-//            try { //todo: uncomment this.
+            try {
             ourJFrame.runGreedyAlgo();
-//            }catch (RuntimeException e){
-//                JOptionPane.showMessageDialog(null, e.getMessage());
-//
-//            }
+            }catch (RuntimeException p){
+                JOptionPane.showMessageDialog(null, p.getMessage());
+            }
         });
 
         corners.addActionListener(e->{
@@ -419,7 +415,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             PathsAvoidObstacles.addSourceToGraph(G, (Point3D) player.getGeom(), sourceNode, game, map, getHeight(), getWidth());
             ArrayList<String> pathStringToTarget = pathToTargetInclObstacles(G, sourceNode, targetNode, true);
             ArrayList<GIS_element> realPath = parseNameList(pathStringToTarget); //the gis_element order to move on, in order to get to the target.
-            System.out.println("next targets for the player in greedy algo: " + realPath); //todo: delete
+            System.out.println("next targets for the player in greedy algo: " + realPath); //prints next target. optional.
 //            realPath.remove(0); //first element is the fromTarget, we already hold it since it was the toTarget last iteration. for iteration zero-> player is placed on first target. no need to include.
             player.setTargetsOrder(realPath);
             player.moveToAllTargets(game.getGhosts()); //will move to all targets set.
@@ -443,12 +439,9 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         if(targets == null){ //this means initialization is wrong, message is already on screen, we should not move onto the algorithm if this happens-> just return.
             return;
         }
-        //TODO: implement method for algorithm to run. Question 4.
-        //todo: work these lines ->>
         Player player = (Player)game.getPlayer();
-
         player.addTargetsList(targets); //add all fruits as targets for the player. we can add Packmen also, or any object which implements GIS_Element .
-        updatePlayerPathToTargets(player,false); //todo: update.
+        updatePlayerPathToTargets(player,false);
         player.moveToAllTargets(ourJFrame.game.getGhosts());
     }
 
@@ -499,7 +492,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             String fromTrName = "" + fromTarget.getData().getType() + fromTarget.getID();
             String toTrName = "" + toTarget.getData().getType() + toTarget.getID();
             //calc shortest path with obstacles avoiding using Dijkstra's:
-            System.out.println("Best route from (" +fromTrName+ ") to target named: " + toTrName+" is: "); //todo: delete
+//            System.out.println("Best route from (" +fromTrName+ ") to target named: " + toTrName+" is: "); //will print the best route from a node to the target. optional.
 
             //calc shortest path to next target, obstacles avoided:
             Graph g = PathsAvoidObstacles.initGraph(ourJFrame.game.getFruits(), ourJFrame.game,map,getHeight(),getWidth());
@@ -508,7 +501,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             realPath.remove(0); //first element is the fromTarget, we already hold it since it was the toTarget last iteration. for iteration zero-> player is placed on first target. no need to include.
             newTargetsOrder.addAll(realPath);
         }
-        System.out.println("The order of movement for player will be: " + newTargetsOrder);
+//        System.out.println("The order of movement for player will be: " + newTargetsOrder); //prints the order of movement for next target. optional.
         player.setTargetsOrder(newTargetsOrder);
     }
 
@@ -534,9 +527,12 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             Point3D pointPixel = new Point3D(e.getX(), e.getY(), 0);
             Point3D globalPoint = map.PixelsToCoords(pointPixel, getHeight(), getWidth());
             System.out.println("Adding player at: " + globalPoint);
-            //TODO: Check if inBound BOX
+
+            //100% Guaranteed to be inside bounding box, since this is a mouse click,
+            // which can only be clicked inside the frame,
+            // the frame bounds are already defined.
             ourJFrame.game.addPlayer(globalPoint);
-            //todo: if there is no game selected but pacman is clicked to add, throw exception with message to screen.
+
             play.setInitLocation(globalPoint.y(),globalPoint.x());
             repaint();
             play.start();
@@ -584,6 +580,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
     public void keyTyped(KeyEvent e) {
     }
 
+    //Keyboard supported.
     @Override
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
