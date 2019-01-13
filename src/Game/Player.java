@@ -134,15 +134,15 @@ public class Player extends GIS_element_obj {
             minDangerZone = maxDangerZone;
             maxDangerZone = temp;
         }
-        System.out.println("Min danger zone degree: "+ minDangerZone); //todo: delete
-        System.out.println("Max danger zone degree: "+ maxDangerZone);//todo: delete
+//        System.out.println("Min danger zone degree: "+ minDangerZone); //show min danger zone degree. optional.
+//        System.out.println("Max danger zone degree: "+ maxDangerZone); //show min danger zone degree. optional.
         for(GIS_element ghost : ghosts){
             double angleToGhost = getAngleToTarget(ghost);
             if (angleToGhost > minDangerZone && angleToGhost < maxDangerZone && distancePointFromEatRadius((Point3D) ghost.getGeom()) < 6) {
                 double angleNormalized = angleToGhost;
                 if(angleToGhost >minDangerZone && angleToGhost<angleToMove)  angleNormalized+=60; else angleNormalized -=60;
                 for(int i =0; i<3; i++) {
-                    System.out.println("Angle to Ghost: " + angleToGhost); //todo: delete
+//                    System.out.println("Angle to Ghost: " + angleToGhost); //shows angle to ghost. optional.
                     System.out.println("Maneuvering to avoid ghost! slow-motion movement!");
                     System.out.println("Rotating towards angle: " + angleNormalized);
                     MyFrame.play.rotate(angleNormalized);  //actually moving. towards normalized-vector angle to the ghost.

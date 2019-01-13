@@ -99,8 +99,6 @@ public class PathsAvoidObstacles {
      */
     public static Graph initGraph(GIS_layer targets, Game game, Map map,double ht,double wd){
         Graph G = new Graph();
-//        String source = "Player Node(Source) First Pos"; //todo: delete this
-//        G.add(new Node(source));
 
         //adding vertex nodes to our graph.
         Iterator<GIS_element> targetIt = targets.iterator();
@@ -143,7 +141,7 @@ public class PathsAvoidObstacles {
                         String firstNode = "" + allVertexes.get(i).getData().getType() + allVertexes.get(i).getID();
                         String secondNode = "" + allVertexes.get(j).getData().getType() + allVertexes.get(j).getID();
                         Double edgeWeight = coords.distance3d(posV1, posV2);
-//                        System.out.println("Added edge between " + firstNode + " to " + secondNode + " with weight: " + edgeWeight); //todo: delete this. fix function.
+//                        System.out.println("Added edge between " + firstNode + " to " + secondNode + " with weight: " + edgeWeight); //show edge added.
                         G.addEdge(firstNode, secondNode, edgeWeight);
                     }
                 }
@@ -178,7 +176,7 @@ public class PathsAvoidObstacles {
         else {
             shortestPath.remove(0);
         }
-        System.out.println("shortest path: "+shortestPath);//todo: delete
+        System.out.println("shortest path: "+shortestPath);//prints the shortest path. optional.
         return shortestPath;
     }
 
@@ -233,7 +231,7 @@ public class PathsAvoidObstacles {
             }
             if (!intersects) {
                 Double edgeWeight = coords.distance3d(sourcePos, posV2);
-                        System.out.println("Added edge between " + nameSource + " to " + edge.get_name() + " with weight: " + edgeWeight); //todo: delete this. fix function.
+//                        System.out.println("Added edge between " + nameSource + " to " + edge.get_name() + " with weight: " + edgeWeight);  //show edge added. optional.
                 g.addEdge(edge.get_name(), nameSource, edgeWeight);
             }
         }
