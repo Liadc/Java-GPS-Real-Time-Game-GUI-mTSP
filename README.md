@@ -102,6 +102,7 @@ We shuffle an ArrayList of targets for the player.  <br>
 This is a base infrastructure for later Genetic-Algorithm which will be developed during semester break. <br>
 More information and details inside the WIKI of this repo. <br>
 
+![alt text](https://github.com/Liadc/OOP-Ex4/blob/master/manual-vs-algorithm.jpg?raw=true)
 
 ## Project Structure, Packages, Classes and Class Diagram
 
