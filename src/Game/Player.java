@@ -8,7 +8,6 @@ import Geom.Point3D;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
 
 public class Player extends GIS_element_obj {
 
@@ -24,7 +23,7 @@ public class Player extends GIS_element_obj {
      *
      * @param geometryOfElement Geom_element, the geometry object of the element.
      * @param dataOfElement     Meta_data, the data of the element.
-     * @param ID
+     * @param ID                ID for this player.
      */
 
     public Player(Geom_element geometryOfElement, Meta_data dataOfElement, int ID) {
@@ -46,7 +45,7 @@ public class Player extends GIS_element_obj {
      *
      */
 
-    public Player(String line){
+    Player(String line){
         super();
         String[] arg = line.split(",");
         Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
@@ -69,7 +68,7 @@ public class Player extends GIS_element_obj {
      * @param target gis_element_obj, such as fruit,packmen, etc.
      * @return the angle, in degrees (Double), to the target.
      */
-    public double getAngleToTarget(GIS_element target){
+    private double getAngleToTarget(GIS_element target){
         Point3D trPoint = (Point3D)target.getGeom();
         trPoint.transformXY();
         Point3D currentPos = (Point3D)this.getGeom();
@@ -85,7 +84,7 @@ public class Player extends GIS_element_obj {
      * This function will get a target and moves to target location until target is eaten
      * @param target gis_element_obj, such as a fruit or packmen, etc.
      */
-    public void moveToEatTarget(GIS_element target, GIS_layer ghosts) {
+    private void moveToEatTarget(GIS_element target, GIS_layer ghosts) {
         Point3D targetPos = (Point3D) target.getGeom();
         //check if distance is less than eating radius, if so, return. if target is no longer available in map (already eaten), return.
         if(distancePointFromEatRadius((Point3D) target.getGeom()) == 0 || target.isEaten()) return;
@@ -177,7 +176,7 @@ public class Player extends GIS_element_obj {
      * @param p - point to distance to
      * @return the distance between the Radius of packman to Point p.
      */
-    public double distancePointFromEatRadius(Point3D p){
+    private double distancePointFromEatRadius(Point3D p){
         MyCoords coords = new MyCoords();
         Point3D currnetPos = (Point3D)this.getGeom();
         double d = coords.distance3d(p,currnetPos);
@@ -187,7 +186,7 @@ public class Player extends GIS_element_obj {
     }
 
 
-    public void updateGeom(String firstBoardLine) {
+    void updateGeom(String firstBoardLine) {
         String[] arg = firstBoardLine.split(",");
         Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
         setGeom(LatLonAlt);
