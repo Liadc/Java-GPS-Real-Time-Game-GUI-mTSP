@@ -7,7 +7,7 @@ import Geom.Point3D;
 
 public class Obstacle extends GIS_element_obj {
 
-    public Obstacle(String line) {
+    Obstacle(String line) {
         super();
         String[] arg = line.split(",");
         Point3D leftDown = new Point3D(arg[3]+","+arg[2]+","+"0");
