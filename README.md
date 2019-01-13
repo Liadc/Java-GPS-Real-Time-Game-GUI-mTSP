@@ -9,7 +9,7 @@ OOP-Ex2, Ex3, Ex4 are 3 assignments we (Liad and Timor) were doing as part of ho
 <br>
 <br>
 Websites:  <br>
-<a href="https://liadc.github.io/OOP-Ex4/">Wiki Website </a> <br>
+<a href="https://github.com/Liadc/OOP-Ex4/wiki">Wiki Website </a> <br>
 <a href="https://liad.cloud/">Database Website </a> <br>
 
 
@@ -95,12 +95,14 @@ More information and details inside the WIKI of this repo.
 This algorithm is not guaranteed to provide the best/optimal solution. <br>
 We use heuristics algorithms to solve the map as efficiently as possible. <br>
 More information and details inside the WIKI of this repo. <br>
+<a href="https://github.com/Liadc/OOP-Ex4/wiki/Heuristics---Greedy-AI-Algorithm">Wiki Website </a> <br>
 
 ### Randomized algorithm
 This algorithm is not guaranteed to provide the best/optimal solution. <br>
 We shuffle an ArrayList of targets for the player.  <br>
 This is a base infrastructure for later Genetic-Algorithm which will be developed during semester break. <br>
 More information and details inside the WIKI of this repo. <br>
+<a href="https://github.com/Liadc/OOP-Ex4/wiki/Heuristics---Greedy-AI-Algorithm">Wiki Website </a> <br>
 
 ![alt text](https://github.com/Liadc/OOP-Ex4/blob/master/manual-vs-algorithm.jpg?raw=true)
 
