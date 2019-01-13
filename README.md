@@ -10,9 +10,7 @@ OOP-Ex2, Ex3, Ex4 are 3 assignments we (Liad and Timor) were doing as part of ho
 <br>
 Websites:  <br>
 <a href="https://github.com/Liadc/OOP-Ex4/wiki">Wiki Website </a> <br>
-
 <b><a href="https://liad.cloud/">Database Website </a> <br></b>
-
 <a href="https://liadc.github.io/OOP-Ex4/">Javadoc Website </a> <br>
 
 
