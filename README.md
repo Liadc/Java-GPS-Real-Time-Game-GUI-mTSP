@@ -2,7 +2,7 @@
 
 
 
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://github.com/xposionn/OOP-Ex2/)
+[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://github.com/Liadc/OOP-Ex4/)
 © Written by Liad Cohen and Timor Sharabi.
 
 OOP-Ex2, Ex3, Ex4 are 3 assignments we (Liad and Timor) were doing as part of homework tasks in the Java Object Oriented Course in Ariel University.
