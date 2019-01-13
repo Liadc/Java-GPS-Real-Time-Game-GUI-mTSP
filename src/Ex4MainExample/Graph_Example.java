@@ -71,11 +71,15 @@ public class Graph_Example {
 		G.addEdge("11","b",pp[11].distance2D(pp[15]));
 		 
 		// This is the main call for computing all the shortest path from node 0 ("a")
+
+		G.add(new Node("Target"));
+		G.addEdge("Target", "7", 0);
+		G.addEdge("Target", "8", 0);
 		Graph_Algo.dijkstra(G, source);
-		
-		Node b = G.getNodeByName(target);
 		System.out.println("***** Graph Demo for OOP_Ex4 *****");
-		System.out.println(b);
+		Node b = G.getNodeByName("Target");
+
+		System.out.println(b +"\n\n\n");
 		System.out.println("Dist: "+b.getDist());
 		ArrayList<String> shortestPath = b.getPath();
 		for(int i=0;i<shortestPath.size();i++) {
