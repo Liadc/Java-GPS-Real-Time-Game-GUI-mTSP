@@ -6,6 +6,12 @@ import GIS.Meta_data_element;
 import Geom.Geom_element;
 import Geom.Point3D;
 
+/**
+ * This class represents a Ghost object inside our game.
+ * it extends the GIS_element_obj, and will also hold these extra fields:
+ * speed, eating radius. (double).
+ * This is our 'Enemy' in our game.
+ */
 public class Ghost extends GIS_element_obj {
 
     private double speed;
@@ -27,7 +33,7 @@ public class Ghost extends GIS_element_obj {
      * Constructor for the Ghost object. gets a String.
      * the string will be splitted and each argument will be sent to the right construction.
      *
-     * @param line, The all data about this element.
+     * @param line String with all data about of this element.
      *
      */
     public Ghost(String line){

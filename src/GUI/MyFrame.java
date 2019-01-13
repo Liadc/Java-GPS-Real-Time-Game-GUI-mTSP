@@ -5,19 +5,11 @@ import Coords.MyCoords;
 import GIS.GIS_element;
 import GIS.GIS_layer;
 import GIS.GIS_layer_obj;
-import Game.Fruit;
-import Game.Game;
-import Game.Map;
-import Game.Ghost;
-import Game.Obstacle;
-import Game.ObstacleCorner;
-import Game.Player;
-import Game.Packman;
+import Game.*;
 import Geom.GeomRectangle;
 import Geom.Point3D;
 import Robot.Play;
 import graph.Graph;
-import graph.Graph_Algo;
 import graph.Node;
 import showDB.DatabaseConnectionQueries;
 
@@ -32,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 
 import static Algorithms.PathsAvoidObstacles.initGraph;
 import static Algorithms.PathsAvoidObstacles.pathToTargetInclObstacles;
@@ -64,11 +58,11 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
 
     /**
      * paint function.
-     * will rewrite each time the packmans in they curret location, (if we changed them)
-     * Run on Packman array and Fruits array, and paint them one by one.
+     * will rewrite each time the objects inside the Game in their current location,
+     * Run on Packman array and Fruits array, ghosts, obstacles, corners, player etc. and paint them one by one.
      *
      * LineSolution will be created and painted too.
-     * @param g graphics.
+     * @param g Graphics, java utility.
      */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -87,7 +81,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         if(ourJFrame.game.getObstacleCorners() != null)
             cornersIterator = ourJFrame.game.getObstacleCorners().iterator();
 
-
         while (PacIterator.hasNext()) {
             Packman pacman = (Packman)PacIterator.next();
             Point3D pixel = null;
@@ -103,7 +96,6 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             g.drawString("ID: "+pacman.getID(),(int)pixel.x()-5,(int)pixel.y()-10);
             g.drawString("Speed: "+pacman.getSpeed(),(int)pixel.x()-5,(int)pixel.y()-25);
         }
-
 
         while (FruitIterator.hasNext()) {
             Fruit fruit = (Fruit)FruitIterator.next();
@@ -181,10 +173,9 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
             g.drawString("Player",(int)pixelPlayer.x()-15,(int)pixelPlayer.y()-10);
             g.fillOval((int) pixelPlayer.x()-6, (int) pixelPlayer.y()-6, 12, 12);
         }
-
-
-//        System.out.println("Finished paint");
     }
+
+
     private static void showMessageToScreen(String msg){
         JOptionPane.showMessageDialog(null, msg);
     }
@@ -399,17 +390,16 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
         //and move to the target, as long as it has not been eaten.
         GIS_layer tr = new GIS_layer_obj();
         tr.addAll(targets);
-        int i =0;
-        while(tr.size() > 0){ //still have targets to kill.
+        while(tr.size() > 0 && play.isRuning()){ //still have targets to kill.
             Graph G = initGraph(tr, game, map, getHeight(), getWidth());
-            String targetNode = "closeTarget"+i;
+            String targetNode = "closeTarget";
             Node trNode = new Node(targetNode);
             G.add(trNode);
             for(GIS_element targetsLeft : tr){
                 G.addEdge("" + targetsLeft.getData().getType() + targetsLeft.getID(), targetNode, 0); //we add zero-weight edge from all targets to newly-created "target"
                 //which will help super-position of the real closest target. this way, Dijkstra's algorithm will find shortest route to our "closeTarget" node, between all other targets.
             }
-            String sourceNode = "fromCurrentPos"+i;
+            String sourceNode = "fromCurrentPos";
             Node fromNode = new Node(sourceNode);
             G.add(fromNode);
             PathsAvoidObstacles.addSourceToGraph(G, (Point3D) player.getGeom(), sourceNode, game, map, getHeight(), getWidth());

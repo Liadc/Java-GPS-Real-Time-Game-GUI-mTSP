@@ -26,7 +26,8 @@ public class Game {
     private Player player;
 
     /**
-     * Default constructor for the Game. will initiate empty layer for fruits, and an empty layer for pacmen.
+     * Default constructor for the Game. will initiate empty layer for fruits, and an empty layer for pacmen, ghosts, obstacles.
+     * Sets meta data accordingly for the layers.
      */
     public Game() {
         pacmen = new GIS_layer_obj();
@@ -40,6 +41,12 @@ public class Game {
         player = null;
     }
 
+
+    /**
+     * Constructor for the Game , will get an ArrayList of String representing the whole Board (whole game data)
+     * parses the arrayList and builds the game accordingly to the data given.
+     * @param board an ArrayList of String representing the whole Board (whole game data).
+     */
     public Game(ArrayList<String> board) {
         pacmen = new GIS_layer_obj();
         pacmen.setMeta(new Meta_data_layerAndProject("Pacmen Layer"));
@@ -71,12 +78,20 @@ public class Game {
         }
     }
 
+    /**
+     * This method will get a line of a specific player and updates the geom of the player.
+     * @param firstBoardLine String, line of the game board data to update the geom from.
+     */
     public void updatePlayer(String firstBoardLine) {
         if(player != null) {
             player.updateGeom(firstBoardLine);
         }
     }
 
+    /**
+     * This method will get a line of a specific fruit and updates the geom of the fruit.
+     * @param firstBoardLine String, line of the game board data to update the geom from.
+     */
     public void updateFruit(String firstBoardLine) {
         String[] parsed = firstBoardLine.split(",");
         int updateID = 0;
@@ -96,6 +111,10 @@ public class Game {
         }
     }
 
+    /**
+     * This method will get a line of a specific packman and updates the geom of the packman.
+     * @param firstBoardLine String, line of the game board data to update the geom from.
+     */
     public void updatePackman(String firstBoardLine) {
         String[] parsed = firstBoardLine.split(",");
         int updateID = 0;
@@ -115,6 +134,10 @@ public class Game {
         }
     }
 
+    /**
+     * This method will get a line of a specific ghost and updates the geom of the ghost.
+     * @param firstBoardLine String, line of the game board data to update the geom from.
+     */
     public void updateGhost(String firstBoardLine) {
         String[] parsed = firstBoardLine.split(",");
         int updateID = 0;
@@ -134,8 +157,14 @@ public class Game {
         }
     }
 
+    /**
+     * This method will get an ArrayList of String which represents the whole game board data.
+     * It will parse each String and updates all relevant objects in our Game according to the new data.
+     * It will take care of object which are not present in the new gameBoard but are inside the Game - it will delete them,
+     * using the UnNecessary functions.
+     * @param gameBoard String, line of the game board data to update the geom from.
+     */
     public void updateGame(ArrayList<String> gameBoard) {
-
         Iterator<String> lines = gameBoard.iterator();
         while (lines.hasNext()) {
             String line = lines.next();
@@ -153,6 +182,10 @@ public class Game {
         resetUnNecessary();
     }
 
+    /**
+     * This method will initialize obstacle corners into the game. If corners are already present, it will print to
+     * the console that corners are already initiated and will not make them again.
+     */
     public void initCorners(){
         if(getObstacleCorners() == null || getObstacleCorners().size() == 0)
             setObstacleCorners((GIS_layer)(PathsAvoidObstacles.createObstacleCorners(this.getObstacles(),this)));
@@ -161,7 +194,10 @@ public class Game {
         }
     }
 
-
+    /**
+     * This method will reset all pacmen and fruits "necessary" boolean field to FALSE, so we know that next game update
+     * they should be Deleted as long as we don't see/find them inside the new game board update!
+     */
     private void resetUnNecessary() {
         for (GIS_element p : pacmen) {
             p.setNecessary(false);
@@ -171,7 +207,12 @@ public class Game {
         }
     }
 
-
+    /**
+     * This method will remove all pacmen and fruits which their "necessary" boolean field is set to to FALSE.
+     * This method will be called once we update all objects after completing the parsing of the newly game board.
+     * as long as a fruit or pacmen field 'necessary' remained FALSE, it means we didn't see it in the newly game board update.
+     * This is the reason we will delete it from the GIS_layer in the Game.
+     */
     private void clearUnNecessary() {
         ArrayList<GIS_element> pacFruits = new ArrayList<>(pacmen);
         pacFruits.addAll(fruits);
@@ -187,8 +228,7 @@ public class Game {
 
     /**
      * Saves current game state into CSV file. returns CSV file path.
-     *
-     * @return file path for CSV file.
+     * @param fullPath
      */
     public void saveGameToCsv(String fullPath) {
         final String COMMA = ",";
@@ -252,10 +292,18 @@ public class Game {
         }
     }
 
+    /**
+     * This method will get a Player and adds it tot the current game.
+     * @param player Player, a GIS_element to add as a player.
+     */
     public void addPlayer(Player player) {
         this.player = player;
     }
 
+    /**
+     * This method will get a Point3D position, and initialize new Player from this position and adds it to the game.
+     * @param pos
+     */
     public void addPlayer(Point3D pos) {
         player = new Player();
         player.setID(0);

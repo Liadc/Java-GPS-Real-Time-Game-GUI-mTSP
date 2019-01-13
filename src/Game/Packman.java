@@ -97,7 +97,12 @@ public class Packman extends GIS_element_obj{
         this.eatRadius = eatRadius;
     }
 
-    void updateGeom(String firstBoardLine) {
+    /**
+     * This method will get a String representing all data about the new Object, but will only update the Geom of the
+     * Packman, i.e its  Point3D position.
+     * @param firstBoardLine String, the data about this packman needed to be parsed in order to update the Geom.
+     */
+    public void updateGeom(String firstBoardLine) {
         String[] arg = firstBoardLine.split(",");
         Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
         setGeom(LatLonAlt);
