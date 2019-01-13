@@ -51,7 +51,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
     public static Play play;
 
 
-    public MyFrame() {
+    private MyFrame() {
         game = new Game();
         Point3D topLeft = new Point3D(35.20236,32.10572);
         Point3D downRight = new Point3D(35.21235,32.10194);
@@ -68,7 +68,7 @@ public class MyFrame extends JPanel implements MouseListener, KeyListener {
      * Run on Packman array and Fruits array, and paint them one by one.
      *
      * LineSolution will be created and painted too.
-     * @param g
+     * @param g graphics.
      */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
