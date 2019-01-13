@@ -8,7 +8,6 @@ import Geom.Point3D;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
 
 public class Player extends GIS_element_obj {
 
@@ -49,7 +48,7 @@ public class Player extends GIS_element_obj {
      *
      */
 
-    public Player(String line){
+    Player(String line){
         super();
         String[] arg = line.split(",");
         Point3D LatLonAlt = new Point3D(arg[3]+","+arg[2]+","+"0");
@@ -72,7 +71,7 @@ public class Player extends GIS_element_obj {
      * @param target gis_element_obj, such as fruit,packmen, etc.
      * @return the angle, in degrees (Double), to the target.
      */
-    public double getAngleToTarget(GIS_element target){
+    private double getAngleToTarget(GIS_element target){
         Point3D trPoint = (Point3D)target.getGeom();
         trPoint.transformXY();
         Point3D currentPos = (Point3D)this.getGeom();
@@ -89,7 +88,7 @@ public class Player extends GIS_element_obj {
      * @param target gis_element_obj, such as a fruit or packmen, etc.
      * @param ghosts GIS_layer, a set containing all ghosts (enemies) to avoid while moving to a target.
      */
-    public void moveToEatTarget(GIS_element target, GIS_layer ghosts) {
+    private void moveToEatTarget(GIS_element target, GIS_layer ghosts) {
         Point3D targetPos = (Point3D) target.getGeom();
         //check if distance is less than eating radius, if so, return. if target is no longer available in map (already eaten), return.
         if(distancePointFromEatRadius((Point3D) target.getGeom()) == 0 || target.isEaten()) return;
@@ -138,15 +137,15 @@ public class Player extends GIS_element_obj {
             minDangerZone = maxDangerZone;
             maxDangerZone = temp;
         }
-        System.out.println("Min danger zone degree: "+ minDangerZone); //todo: delete
-        System.out.println("Max danger zone degree: "+ maxDangerZone);//todo: delete
+//        System.out.println("Min danger zone degree: "+ minDangerZone); //show min danger zone degree. optional.
+//        System.out.println("Max danger zone degree: "+ maxDangerZone); //show min danger zone degree. optional.
         for(GIS_element ghost : ghosts){
             double angleToGhost = getAngleToTarget(ghost);
             if (angleToGhost > minDangerZone && angleToGhost < maxDangerZone && distancePointFromEatRadius((Point3D) ghost.getGeom()) < 6) {
                 double angleNormalized = angleToGhost;
                 if(angleToGhost >minDangerZone && angleToGhost<angleToMove)  angleNormalized+=60; else angleNormalized -=60;
                 for(int i =0; i<3; i++) {
-                    System.out.println("Angle to Ghost: " + angleToGhost); //todo: delete
+//                    System.out.println("Angle to Ghost: " + angleToGhost); //shows angle to ghost. optional.
                     System.out.println("Maneuvering to avoid ghost! slow-motion movement!");
                     System.out.println("Rotating towards angle: " + angleNormalized);
                     MyFrame.play.rotate(angleNormalized);  //actually moving. towards normalized-vector angle to the ghost.
@@ -184,7 +183,7 @@ public class Player extends GIS_element_obj {
      * @param p - point to check distance to
      * @return the distance between the Radius of packman to Point p.
      */
-    public double distancePointFromEatRadius(Point3D p){
+    private double distancePointFromEatRadius(Point3D p){
         MyCoords coords = new MyCoords();
         Point3D currnetPos = (Point3D)this.getGeom();
         double d = coords.distance3d(p,currnetPos);

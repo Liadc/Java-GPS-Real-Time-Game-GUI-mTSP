@@ -5,19 +5,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TimeChangeTest {
-    //TODO: FIX IT
-    String dateInStr1 = "2015-03-30T10:47:58Z";
-    long dateinlong1 = 1427712478000L;
 
-    String dateInStr2 = "2016-04-04T01:52:49Z";
-    long dateinlong2 = 1459734769000L ;
+    private String dateInStr1 = "2015-03-30T10:47:58Z";
+    private long dateinlong1 = 1427712478000L;
+
+    private String dateInStr2 = "2016-04-04T01:52:49Z";
+    private long dateinlong2 = 1459734769000L ;
 
 
-    String dateInStr3 = "2015-03-30T10:56:18Z";
-    long dateinlong3 = 1427712978000L;
+    private String dateInStr3 = "2015-03-30T10:56:18Z";
+    private long dateinlong3 = 1427712978000L;
 
-    String dateInStr4 = "1970-01-01T00:00Z";
-    long dateinlong4 = 0L;
+    private String dateInStr4 = "1970-01-01T00:00Z";
+    private long dateinlong4 = 0L;
 
 
     @Test

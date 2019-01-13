@@ -23,7 +23,7 @@ public class DatabaseConnectionQueries {
 		mapFileHashes.put("Ex4_OOP_example9.csv", 919248096L);
 		Long hashOfFile = mapFileHashes.get(mapName);
 
-		System.out.println("Will query map ID: "+ hashOfFile); //todo: delete
+		System.out.println("Will query map ID: "+ hashOfFile); //shows which map id to query. optional.
 
 		String jdbcUrl="jdbc:mysql://ariel-oop.xyz:3306/oop"; //oop?useUnicode=yes&characterEncoding=UTF-8&useSSL=false";
 		String jdbcUser="student";
@@ -52,8 +52,6 @@ public class DatabaseConnectionQueries {
 					maxScore = currentScore;
 				}
 			}
-			System.out.println("Total Pts : " + totalPts); //todo: delete
-			System.out.println("Count : " + count); //todo: delete
 			System.out.println("Max Score for Liad & Timor: " + maxScore);
 			double avg = totalPts/count;
 			avgs[0] = avg;
